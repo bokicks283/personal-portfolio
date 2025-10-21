@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+/* global base rules and tsparticles global target */
+@layer base {
+  html, body, #root {
+    @apply m-0 antialiased;
+    /* font family configured in tailwind.config.js via font-sans */
+  }
+
+  code { @apply font-mono; }
+
+  /* tsparticles canvas / container must be global */
+  #tsparticles {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    left: 0;
+    top: 0;
+    z-index: -1;
+  }
+}
+
+@layer utilities {
+  @keyframes typed-caret-blink { 0%,100% { opacity: 0 } 50% { opacity: 1 } }
+  .typed-caret-blink { animation: typed-caret-blink .6s step-end infinite; }
+
+   /* ensure caret always has a border style + height */
+  .typed-caret {
+    border-right-style: solid;   /* important: style must not be 'none' */
+    height: 1em;                 /* draw full line height */
+    line-height: 1;              /* keep it crisp */
+  }
+}
