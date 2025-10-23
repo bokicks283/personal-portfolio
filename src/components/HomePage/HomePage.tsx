@@ -10,7 +10,9 @@ function HomePage() {
         <NavBar text="Ronald Bocchichio" reactLogo="https://reactjs.org/logo-og.png" />
         <div className="bg-transparent min-h-screen flex flex-col items-center justify-center text-white">
           <TypedText
-            baseMsPerChar={90}
+            baseMsPerChar={100}
+            repeatDelayMs={10000}
+            repeat={"infinite"}
             lines={[
               {
                 segments: [
@@ -37,7 +39,9 @@ function HomePage() {
             ]}
           />
         </div>
-        <div className="mt-4 text-white">
+        <div className="mt-4 text-center text-white">
+          <p>test para&nbsp;</p>
+          <p></p>
           <p>test para</p>
         </div>
       </ParticleBackground>

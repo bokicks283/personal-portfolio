@@ -1,4 +1,8 @@
-import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef } from "react";
+// src/components/TypedText.tsx
+import React, {
+  useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef
+} from "react";
+import { TypedLine, type TypedLineVM, type CharCell } from "./TypedLine.tsx";
 
 /** Styling for a piece of text inside a line */
 export type TextSegment = {
@@ -21,14 +25,32 @@ export type TypedLineItem = {
   caretColorClass?: string;   // or Tailwind class (static)
   /** pause points inside the line (character indexes) with extra delay (ms) */
   pausesAt?: Array<{ index: number; delayMs: number }>;
+  /** Optional per-line wrapper classes for padding/border/etc */
+  lineClassName?: string;   // e.g. "px-2 py-1 rounded-md border border-neutral-700"
 };
 
 export type TypedTextProps = {
   lines: TypedLineItem[];
-  baseMsPerChar?: number;     // default speed (ms/char) if not set per line
-  startDelayMs?: number;      // initial delay before first line starts
-  fontSizeClass?: string;     // Tailwind text size
-  fontClass?: string;         // Tailwind font family
+
+  /** Global timings */
+  baseMsPerChar?: number;
+  startDelayMs?: number;
+
+  /** Caret presentation (overridable per line by color props) */
+  caretBlinkMs?: number;        // e.g. 600 for .6s
+  caretWidthPx?: number;       // e.g. 10 (px)
+  caretGapPx?: number;
+  caretInsetPx?: number;      // e.g. 2 (px)
+
+  /** Looping / control */
+  autoplay?: boolean;           // default: true
+  repeat?: number | "infinite"; // times to replay after the first run
+  repeatDelayMs?: number;       // pause before replaying
+  onComplete?: () => void;
+
+  /** Typography / a11y */
+  fontSizeClass?: string;
+  fontClass?: string;
   ariaLive?: "polite" | "assertive" | "off";
 };
 
@@ -36,6 +58,8 @@ export type TypedTextProps = {
 export type TypedTextHandle = {
   start: () => void;
   reset: () => void;
+  stop: () => void;
+  replay: (times?: number | "infinite") => void;
 };
 
 /** Grapheme splitter so emoji/accents count as one char */
@@ -48,7 +72,7 @@ function splitGraphemes(s: string): string[] {
   }
 }
 
-function flattenSegments(text?: string, segments?: TextSegment[]) {
+function flatten(text?: string, segments?: TextSegment[]) {
   if (text != null) return [{ runText: text, bold: false, colorHex: undefined, colorClass: "" }];
   return (segments ?? []).map(s => ({
     runText: s.text,
@@ -59,20 +83,20 @@ function flattenSegments(text?: string, segments?: TextSegment[]) {
 }
 
 function buildCharPlan(line: TypedLineItem, baseMsPerChar: number) {
-  const runs = flattenSegments(line.text, line.segments);
-  const chars: { ch: string; bold: boolean; colorHex?: string; colorClass: string }[] = [];
+  const runs = flatten(line.text, line.segments);
+  const chars: CharCell[] = [];
   for (const r of runs) {
     for (const ch of splitGraphemes(r.runText)) {
-      chars.push({ ch, bold: r.bold, colorHex: r.colorHex, colorClass: r.colorClass });
+      chars.push({ ch, bold: r.bold, colorHex: r.colorHex, colorClass: r.colorClass ?? "" });
     }
   }
   const steps = chars.length;
   const msPerChar = line.msPerChar ?? baseMsPerChar;
 
-  // TODO: Convert into taking in a int as part of the line item.
-  // If line item is an int, pause for that many milliseconds after the line.
-  // Build per-char schedule with optional pauses
-  const pauses = (line.pausesAt ?? []).filter(p => p.index >= 0 && p.index <= steps).sort((a, b) => a.index - b.index);
+    const pauses = (line.pausesAt ?? [])
+    .filter(p => p.index >= 0 && p.index <= steps)
+    .sort((a, b) => a.index - b.index);
+
   const delays: number[] = new Array(steps).fill(msPerChar);
   for (const p of pauses) {
     // insert extra delay AFTER the character at p.index-1 (i.e., before showing char at p.index)
@@ -81,48 +105,30 @@ function buildCharPlan(line: TypedLineItem, baseMsPerChar: number) {
     }
   }
 
-  return { chars, steps, delays, msPerChar };
-}
-
-/** Renders grouped runs (same style) for better DOM perf */
-function renderRuns(chars: { ch: string; bold: boolean; colorHex?: string; colorClass: string }[]) {
-  if (!chars.length) return null;
-  const runs: { text: string; bold: boolean; colorHex?: string; colorClass: string }[] = [];
-  let current = { text: "", bold: chars[0].bold, colorHex: chars[0].colorHex, colorClass: chars[0].colorClass };
-  const sameStyle = (a: typeof current, b: typeof current) =>
-    a.bold === b.bold && a.colorHex === b.colorHex && a.colorClass === b.colorClass;
-
-  for (const c of chars) {
-    const style = { bold: c.bold, colorHex: c.colorHex, colorClass: c.colorClass };
-    if (sameStyle(current, style as typeof current)) current.text += c.ch;
-    else { runs.push(current); current = { text: c.ch, ...style }; }
-  }
-  runs.push(current);
-
-  return runs.map((r, i) => (
-    <span
-      key={i}
-      className={`${r.bold ? "font-bold" : ""} ${r.colorClass ?? ""}`}
-      style={r.colorHex ? { color: r.colorHex } : undefined}
-    >
-      {r.text}
-    </span>
-  ));
+  return { chars, steps, delays };
 }
 
 const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText(
   {
     lines,
-    baseMsPerChar = 70,
+    baseMsPerChar = 140,
     startDelayMs = 0,
+    caretBlinkMs = 1000,
+    caretWidthPx = 10,
+    caretGapPx = 0,
+    caretInsetPx = 5,
+    autoplay = true,
+    repeat = 0,
+    repeatDelayMs = 1000,
+    onComplete,
     fontSizeClass = "text-[clamp(1.75rem,6vw,3.5rem)]",
     fontClass = "font-inconsolata",
     ariaLive = "polite",
   },
   ref
 ) {
-  /** Build a precise schedule for each line (when to show each char) */
-  const plan = useMemo(() => {
+  // Build timing plan once per prop change
+  const plan: TypedLineVM[] = useMemo(() => {
     let t = startDelayMs;
     return lines.map((line, idx) => {
       const { chars, steps, delays } = buildCharPlan(line, baseMsPerChar);
@@ -130,41 +136,69 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
       const when: number[] = [];
       let acc = lineDelay;
       for (let i = 0; i < steps; i++) { acc += delays[i]; when.push(acc); }
+
       const keepCaret = line.keepCaret ?? idx === lines.length - 1;
       const caretColorHex = line.caretColorHex;
       const caretColorClass = line.caretColorClass;
-      t = when[when.length - 1] ?? lineDelay; // next line starts after last char appears
-      return { chars, steps, when, keepCaret, caretColorHex, caretColorClass };
+      const lineClassName = line.lineClassName ?? "";
+
+      // Next line starts after last char of this one appears
+      t = when[when.length - 1] ?? lineDelay;
+
+      return { chars, when, keepCaret, caretColorHex, caretColorClass, lineClassName };
     });
   }, [lines, baseMsPerChar, startDelayMs]);
 
-  /** counts[i] = number of chars currently visible for line i */
+  // counts[i] = visible char count for line i
   const [counts, setCounts] = useState<number[]>(() => plan.map(() => 0));
   const timeouts = useRef<number[]>([]);
+  const endTimer = useRef<number | null>(null);
+  const remainingRepeats = useRef<number | "infinite">(repeat);
 
-  // imperative API
+  // Imperative API
   useImperativeHandle(ref, () => ({
     start: () => {
-      // restart typing from scratch
-      timeouts.current.forEach(id => clearTimeout(id));
+      stopInternal();
       setCounts(plan.map(() => 0));
+      remainingRepeats.current = repeat;
       scheduleAll();
     },
     reset: () => {
-      timeouts.current.forEach(id => clearTimeout(id));
+      stopInternal();
       setCounts(plan.map(() => 0));
+      remainingRepeats.current = repeat;
+    },
+    stop: () => {
+      stopInternal();
+    },
+    replay: (times) => {
+      stopInternal();
+      setCounts(plan.map(() => 0));
+      remainingRepeats.current = times ?? repeat ?? 0;
+      scheduleAll();
     },
   }));
 
+  // Autoplay on plan changes
   useEffect(() => {
-    scheduleAll();
-    return () => timeouts.current.forEach(id => clearTimeout(id));
+    stopInternal();
+    setCounts(plan.map(() => 0));
+    remainingRepeats.current = repeat;
+    if (autoplay) scheduleAll();
+    return () => stopInternal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan]);
+  }, [plan, autoplay]);
+
+  function stopInternal() {
+    timeouts.current.forEach(id => clearTimeout(id));
+    timeouts.current = [];
+    if (endTimer.current != null) { clearTimeout(endTimer.current); endTimer.current = null; }
+  }
 
   function scheduleAll() {
     timeouts.current.forEach(id => clearTimeout(id));
     timeouts.current = [];
+
     plan.forEach((ln, lineIdx) => {
       ln.when.forEach((ts, k) => {
         const id = window.setTimeout(() => {
@@ -178,42 +212,42 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
         timeouts.current.push(id);
       });
     });
+
+    const endAt = Math.max(0, ...plan.map(ln => (ln.when.length ? ln.when[ln.when.length - 1] : 0)));
+
+    endTimer.current = window.setTimeout(() => {
+      onComplete?.();
+
+      const again =
+        remainingRepeats.current === "infinite" ||
+        (typeof remainingRepeats.current === "number" && remainingRepeats.current > 0);
+
+      if (again) {
+        if (typeof remainingRepeats.current === "number") {
+          remainingRepeats.current = remainingRepeats.current - 1;
+        }
+        endTimer.current = window.setTimeout(() => {
+          setCounts(plan.map(() => 0));
+          scheduleAll();
+        }, repeatDelayMs);
+      }
+    }, endAt + 1);
   }
 
   return (
     <div className={`grid place-items-center ${fontClass} ${fontSizeClass}`} aria-live={ariaLive}>
-      {plan.map((ln, i) => {
-        const visible = ln.chars.slice(0, counts[i]);
-        const started = counts[i] > 0;
-        const done = counts[i] >= ln.chars.length;
-        const nextLineStarted = i < plan.length - 1 ? counts[i + 1] > 0 : false;
-
-        return (
-          <p key={i} className="m-0 mb-2">
-            <span className="relative inline-block align-middle whitespace-nowrap">
-              {/* text (starts empty; grows by 1 grapheme at scheduled times) */}
-              <span className="inline-block select-none">
-                {renderRuns(visible)}
-              </span>
-
-              {/* caret (right edge of the line; blinks; hides on non-last when done) */}
-              <span
-                aria-hidden="true"
-                className={[
-                  "inline-block align-middle w-0",      // zero width; the border is the caret
-                  "typed-caret typed-caret-blink",        // ensures solid style + blink
-                  ln.caretColorClass ?? "border-current"  // fallback to current text color if no class
-                ].join(" ")}
-                style={{
-                  borderRightWidth: "10px",
-                  borderRightColor: ln.caretColorHex ?? "currentColor", // fallback color
-                  visibility: !started || (done && !ln.keepCaret && nextLineStarted) ? "hidden" : "visible",
-                }}
-              />
-            </span>
-          </p>
-        );
-      })}
+      {plan.map((ln, i) => (
+        <TypedLine
+          key={i}
+          vm={ln}
+          count={counts[i]}
+          nextLineStarted={i < plan.length - 1 ? counts[i + 1] > 0 : false}
+          caretWidthPx={caretWidthPx}
+          caretBlinkMs={caretBlinkMs}
+          caretInsetPx={caretInsetPx}
+          caretGapPx={caretGapPx}
+        />
+      ))}
     </div>
   );
 });

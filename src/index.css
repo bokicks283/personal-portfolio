@@ -2,12 +2,17 @@
 
 /* global base rules and tsparticles global target */
 @layer base {
-  html, body, #root {
+
+  html,
+  body,
+  #root {
     @apply m-0 antialiased;
     /* font family configured in tailwind.config.js via font-sans */
   }
 
-  code { @apply font-mono; }
+  code {
+    @apply font-mono;
+  }
 
   /* tsparticles canvas / container must be global */
   #tsparticles {
@@ -23,13 +28,44 @@
 }
 
 @layer utilities {
-  @keyframes typed-caret-blink { 0%,100% { opacity: 0 } 50% { opacity: 1 } }
-  .typed-caret-blink { animation: typed-caret-blink .6s step-end infinite; }
+  @keyframes typed-caret-blink {
 
-   /* ensure caret always has a border style + height */
-  .typed-caret {
-    border-right-style: solid;   /* important: style must not be 'none' */
-    height: 1em;                 /* draw full line height */
-    line-height: 1;              /* keep it crisp */
+    0%,
+    100% {
+      opacity: 0
+    }
+
+    50% {
+      opacity: 1
+    }
+  }
+
+  /* Blink speed controlled by CSS var --caret-blink-ms (default .6s) */
+  .typed-caret-blink {
+    animation: typed-caret-blink var(--caret-blink-ms, .6s) step-end infinite;
+  }
+
+  /* Absolutely positioned caret that fills the wrapper block-size */
+  .typed-caret-abs {
+    position: absolute;
+    top: var(--caret-inset, 0);
+    bottom: var(--caret-inset, 0);
+    inset-inline-end: 0;
+    border-inline-end-style: solid;
+    display: block;
+    pointer-events: none;
+  }
+
+  /* If you ever need the inline zero-width caret again */
+  .typed-caret-inline {
+    display: inline-block;
+    vertical-align: text-bottom;
+    border-right-style: solid;
+    height: 1em;
+    /* fallback */
+    height: 1lh;
+    /* equals computed line-height where supported */
+    line-height: inherit;
+    width: 0;
   }
 }
