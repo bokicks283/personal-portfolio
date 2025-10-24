@@ -14,7 +14,6 @@ export type TypedLineVM = {
 
 function renderRuns(chars: CharCell[]) {
   if (!chars.length) return null;
-
   // Merge adjacent chars with equal style for fewer spans.
   const runs: { text: string; bold: boolean; colorHex?: string; colorClass: string }[] = [];
   let cur = { text: "", bold: chars[0].bold, colorHex: chars[0].colorHex, colorClass: chars[0].colorClass };
@@ -45,23 +44,22 @@ function renderRuns(chars: CharCell[]) {
   ));
 }
 
-type Props = {
+type TypedLineProps = {
   vm: TypedLineVM;
   /** how many chars of this line are visible */
   count: number;
   /** has the next line started (used to hide caret on finished non-last lines) */
   nextLineStarted: boolean;
-
   // caret & layout controls (from parent)
-  caretWidthPx: number;
-  caretBlinkMs: number;
-  caretInsetPx: number; // trim top/bottom
-  caretGapPx: number;   // visual gap between last glyph and caret
+  caretWidthPx: number; // thickness of the caret.
+  caretBlinkMs: number; // speed of blink cycle.
+  caretInsetPx: number; // trim top/bottom.
+  caretGapPx: number;   // visual gap between last glyph and caret.
 };
 
 export const TypedLine = memo(function TypedLine({
   vm, count, nextLineStarted, caretWidthPx, caretBlinkMs, caretInsetPx, caretGapPx,
-}: Props) {
+}: TypedLineProps) {
   const visible = vm.chars.slice(0, count);
   const started = count > 0;
   const done = count >= vm.chars.length;

@@ -10,8 +10,14 @@ function HomePage() {
         <NavBar text="Ronald Bocchichio" reactLogo="https://reactjs.org/logo-og.png" />
         <div className="bg-transparent min-h-screen flex flex-col items-center justify-center text-white">
           <TypedText
-            baseMsPerChar={100}
+            baseMsPerChar={80}
+            baseMsLineDelay={2000}
             repeatDelayMs={10000}
+            caretBlinkMs={1000}
+            caretWidthPx={10}
+            caretInsetPx={10}
+            caretGapPx={2}
+            autoplay={true}
             repeat={"infinite"}
             lines={[
               {
@@ -29,19 +35,15 @@ function HomePage() {
                   { text: "." },
                 ],
                 caretColorHex: "cadetblue",
-                lineDelayMs: 1500,
               },
               {
                 text: "Welcome to my website!",
                 caretColorHex: "cadetblue",
-                lineDelayMs: 1500,
               },
             ]}
           />
         </div>
         <div className="mt-4 text-center text-white">
-          <p>test para&nbsp;</p>
-          <p></p>
           <p>test para</p>
         </div>
       </ParticleBackground>

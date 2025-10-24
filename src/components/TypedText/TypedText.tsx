@@ -1,4 +1,3 @@
-// src/components/TypedText.tsx
 import React, {
   useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef
 } from "react";
@@ -34,6 +33,7 @@ export type TypedTextProps = {
 
   /** Global timings */
   baseMsPerChar?: number;
+  baseMsLineDelay?: number;
   startDelayMs?: number;
 
   /** Caret presentation (overridable per line by color props) */
@@ -75,43 +75,41 @@ function splitGraphemes(s: string): string[] {
 function flatten(text?: string, segments?: TextSegment[]) {
   if (text != null) return [{ runText: text, bold: false, colorHex: undefined, colorClass: "" }];
   return (segments ?? []).map(s => ({
-    runText: s.text,
-    bold: !!s.bold,
-    colorHex: s.colorHex,
-    colorClass: s.colorClass ?? "",
+    runText: s.text, bold: !!s.bold, colorHex: s.colorHex, colorClass: s.colorClass ?? "",
   }));
 }
 
 function buildCharPlan(line: TypedLineItem, baseMsPerChar: number) {
   const runs = flatten(line.text, line.segments);
   const chars: CharCell[] = [];
-  for (const r of runs) {
-    for (const ch of splitGraphemes(r.runText)) {
-      chars.push({ ch, bold: r.bold, colorHex: r.colorHex, colorClass: r.colorClass ?? "" });
-    }
+  for (const r of runs) for (const ch of splitGraphemes(r.runText)) {
+    chars.push({ ch, bold: r.bold, colorHex: r.colorHex, colorClass: r.colorClass ?? "" });
   }
   const steps = chars.length;
   const msPerChar = line.msPerChar ?? baseMsPerChar;
 
-    const pauses = (line.pausesAt ?? [])
+  const pauses = (line.pausesAt ?? [])
     .filter(p => p.index >= 0 && p.index <= steps)
     .sort((a, b) => a.index - b.index);
 
-  const delays: number[] = new Array(steps).fill(msPerChar);
-  for (const p of pauses) {
-    // insert extra delay AFTER the character at p.index-1 (i.e., before showing char at p.index)
-    if (p.index > 0 && p.index < steps + 1) {
-      delays[p.index - 1] += p.delayMs;
-    }
+  // cumulative "when" timestamps (ms since animation start)
+  const when: number[] = [];
+  let t = 0;
+  for (let i = 0; i < steps; i++) {
+    let d = msPerChar;
+    const p = pauses.find(pp => pp.index - 1 === i);
+    if (p) d += p.delayMs;
+    t += d;
+    when.push(t);
   }
-
-  return { chars, steps, delays };
+  return { chars, when };
 }
 
 const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText(
   {
     lines,
     baseMsPerChar = 140,
+    baseMsLineDelay = 1000,
     startDelayMs = 0,
     caretBlinkMs = 1000,
     caretWidthPx = 10,
@@ -127,119 +125,128 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
   },
   ref
 ) {
-  // Build timing plan once per prop change
-  const plan: TypedLineVM[] = useMemo(() => {
-    let t = startDelayMs;
-    return lines.map((line, idx) => {
-      const { chars, steps, delays } = buildCharPlan(line, baseMsPerChar);
-      const lineDelay = t + (line.lineDelayMs ?? 0);
-      const when: number[] = [];
-      let acc = lineDelay;
-      for (let i = 0; i < steps; i++) { acc += delays[i]; when.push(acc); }
-
+  // Build plan with absolute start offsets per line, total duration, etc.
+  const plan: { vm: TypedLineVM; lineStartMs: number; lineEndMs: number }[] = useMemo(() => {
+    let offset = startDelayMs;
+    const result = lines.map((line, idx) => {
+      const { chars, when } = buildCharPlan(line, baseMsPerChar);
       const keepCaret = line.keepCaret ?? idx === lines.length - 1;
-      const caretColorHex = line.caretColorHex;
-      const caretColorClass = line.caretColorClass;
-      const lineClassName = line.lineClassName ?? "";
-
-      // Next line starts after last char of this one appears
-      t = when[when.length - 1] ?? lineDelay;
-
-      return { chars, when, keepCaret, caretColorHex, caretColorClass, lineClassName };
+      const vm: TypedLineVM = {
+        chars,
+        when: when.map(ms => ms + offset),
+        keepCaret,
+        caretColorHex: line.caretColorHex,
+        caretColorClass: line.caretColorClass,
+        lineClassName: line.lineClassName ?? "",
+      };
+      const lineStartMs = offset;
+      const lineEndMs = when.length ? when[when.length - 1] + offset : offset;
+      offset = lineEndMs + (baseMsLineDelay ?? 0) + (line.lineDelayMs ?? 0); // next line offset includes requested gap
+      return { vm, lineStartMs, lineEndMs };
     });
+    return result;
   }, [lines, baseMsPerChar, startDelayMs]);
 
-  // counts[i] = visible char count for line i
+  const totalDuration = useMemo(
+    () => (plan.length ? plan[plan.length - 1].lineEndMs : 0),
+    [plan]
+  );
+
+  // counts[i] = number of chars visible on line i
   const [counts, setCounts] = useState<number[]>(() => plan.map(() => 0));
-  const timeouts = useRef<number[]>([]);
-  const endTimer = useRef<number | null>(null);
+
+  // RAF state
+  const rafId = useRef<number | null>(null);
+  const runStart = useRef<number | null>(null);
+  const running = useRef(false);
   const remainingRepeats = useRef<number | "infinite">(repeat);
 
   // Imperative API
   useImperativeHandle(ref, () => ({
-    start: () => {
-      stopInternal();
-      setCounts(plan.map(() => 0));
-      remainingRepeats.current = repeat;
-      scheduleAll();
-    },
-    reset: () => {
-      stopInternal();
-      setCounts(plan.map(() => 0));
-      remainingRepeats.current = repeat;
-    },
-    stop: () => {
-      stopInternal();
-    },
-    replay: (times) => {
-      stopInternal();
-      setCounts(plan.map(() => 0));
-      remainingRepeats.current = times ?? repeat ?? 0;
-      scheduleAll();
-    },
+    start: () => { startRun(); },
+    reset: () => { cancelRun(); setCounts(plan.map(() => 0)); remainingRepeats.current = repeat; },
+    stop: () => { cancelRun(); },
+    replay: (times: number | "infinite" | undefined) => { cancelRun(); setCounts(plan.map(() => 0)); remainingRepeats.current = times ?? repeat ?? 0; startRun(); },
   }));
 
-  // Autoplay on plan changes
+  // autoplay on plan change
   useEffect(() => {
-    stopInternal();
+    cancelRun();
     setCounts(plan.map(() => 0));
     remainingRepeats.current = repeat;
-    if (autoplay) scheduleAll();
-    return () => stopInternal();
+    if (autoplay) startRun();
+    return () => cancelRun();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan, autoplay]);
 
-  function stopInternal() {
-    timeouts.current.forEach(id => clearTimeout(id));
-    timeouts.current = [];
-    if (endTimer.current != null) { clearTimeout(endTimer.current); endTimer.current = null; }
+  function cancelRun() {
+    if (rafId.current != null) cancelAnimationFrame(rafId.current);
+    rafId.current = null;
+    runStart.current = null;
+    running.current = false;
   }
 
-  function scheduleAll() {
-    timeouts.current.forEach(id => clearTimeout(id));
-    timeouts.current = [];
+  function startRun() {
+    cancelRun();
+    running.current = true;
+    runStart.current = performance.now();
+    tick();
+  }
 
-    plan.forEach((ln, lineIdx) => {
-      ln.when.forEach((ts, k) => {
-        const id = window.setTimeout(() => {
-          setCounts(prev => {
-            if (prev[lineIdx] >= k + 1) return prev;
-            const next = prev.slice();
-            next[lineIdx] = k + 1;
-            return next;
-          });
-        }, ts);
-        timeouts.current.push(id);
+  function tick() {
+    if (!running.current) return;
+    const now = performance.now();
+    const elapsed = now - (runStart.current ?? now); // ms since run start
+
+    // compute visible counts from elapsed time (no per-char timers)
+    setCounts(prev => {
+      const next = prev.slice();
+      plan.forEach(({ vm }, i) => {
+        // count how many timestamps <= elapsed
+        let k = 0;
+        const when = vm.when;
+        while (k < when.length && when[k] <= elapsed) k++;
+        if (k !== next[i]) next[i] = k;
       });
+      return next;
     });
 
-    const endAt = Math.max(0, ...plan.map(ln => (ln.when.length ? ln.when[ln.when.length - 1] : 0)));
-
-    endTimer.current = window.setTimeout(() => {
+    // done?
+    if (elapsed >= totalDuration + 0.5) {
       onComplete?.();
-
-      const again =
+      if (
         remainingRepeats.current === "infinite" ||
-        (typeof remainingRepeats.current === "number" && remainingRepeats.current > 0);
-
-      if (again) {
-        if (typeof remainingRepeats.current === "number") {
-          remainingRepeats.current = remainingRepeats.current - 1;
-        }
-        endTimer.current = window.setTimeout(() => {
-          setCounts(plan.map(() => 0));
-          scheduleAll();
-        }, repeatDelayMs);
+        (typeof remainingRepeats.current === "number" && remainingRepeats.current > 0)
+      ) {
+        if (typeof remainingRepeats.current === "number") remainingRepeats.current -= 1;
+        // small wait for repeatDelayMs, using RAF time
+        const waitStart = performance.now();
+        const wait = () => {
+          const w = performance.now() - waitStart;
+          if (w >= repeatDelayMs) {
+            setCounts(plan.map(() => 0));
+            runStart.current = performance.now();
+            rafId.current = requestAnimationFrame(tick);
+          } else {
+            rafId.current = requestAnimationFrame(wait);
+          }
+        };
+        rafId.current = requestAnimationFrame(wait);
+      } else {
+        cancelRun();
       }
-    }, endAt + 1);
+      return;
+    }
+
+    rafId.current = requestAnimationFrame(tick);
   }
 
   return (
     <div className={`grid place-items-center ${fontClass} ${fontSizeClass}`} aria-live={ariaLive}>
-      {plan.map((ln, i) => (
+      {plan.map(({ vm }, i) => (
         <TypedLine
           key={i}
-          vm={ln}
+          vm={vm}
           count={counts[i]}
           nextLineStarted={i < plan.length - 1 ? counts[i + 1] > 0 : false}
           caretWidthPx={caretWidthPx}
@@ -251,5 +258,4 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
     </div>
   );
 });
-
 export default TypedText;
