@@ -4,7 +4,7 @@ import {loadFull} from "tsparticles";
 import particlesOptions from "./particles.json";
 import type { IOptions, RecursivePartial } from "@tsparticles/engine";
 
-function ParticleBackground({ children }: { children: JSX.Element | JSX.Element[] }) {
+function ParticleBackground({ className, children }: { className?: string; children: JSX.Element | JSX.Element[] }) {
     const [init, setInit] = useState(false);
 
     useEffect(() => {
@@ -20,7 +20,7 @@ function ParticleBackground({ children }: { children: JSX.Element | JSX.Element[
     }, []);
 
     return (
-        <div className="relative min-h-screen z-10">
+        <div className={`relative min-h-screen z-10 ${className}`}>
             {init && <Particles id="tsparticles" options={particlesOptions as unknown as RecursivePartial<IOptions>}/>}
             <div className="relative z-20">
                 {children}
