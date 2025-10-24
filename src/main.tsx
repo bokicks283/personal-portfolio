@@ -6,11 +6,9 @@ import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-  <div>
     {/* Suspense shows a tiny fallback while lazy routes load */}
     <Suspense fallback={<div className="p-4 text-white">Loading…</div>}>
       <RouterProvider router={router} />
     </Suspense>
-  </div>
   </StrictMode>
 );
