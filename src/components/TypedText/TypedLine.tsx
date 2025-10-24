@@ -7,6 +7,10 @@ export type TypedLineVM = {
   chars: CharCell[];
   when: number[];
   keepCaret: boolean;
+  caretBlinkMs?: number;  
+  caretWidthPx?: number;
+  caretGapPx?: number;
+  caretInsetPx?: number;
   caretColorHex?: string;
   caretColorClass?: string;
   lineClassName?: string;
@@ -50,35 +54,30 @@ type TypedLineProps = {
   count: number;
   /** has the next line started (used to hide caret on finished non-last lines) */
   nextLineStarted: boolean;
-  // caret & layout controls (from parent)
-  caretWidthPx: number; // thickness of the caret.
-  caretBlinkMs: number; // speed of blink cycle.
-  caretInsetPx: number; // trim top/bottom.
-  caretGapPx: number;   // visual gap between last glyph and caret.
 };
 
 export const TypedLine = memo(function TypedLine({
-  vm, count, nextLineStarted, caretWidthPx, caretBlinkMs, caretInsetPx, caretGapPx,
+  vm, count, nextLineStarted
 }: TypedLineProps) {
   const visible = vm.chars.slice(0, count);
   const started = count > 0;
   const done = count >= vm.chars.length;
 
   return (
-    <p className="m-0 mb-2">
+    <p className="m-0">
       {/* Wrapper reserves a lane for caret width; caret is absolutely pinned to the right */}
       <span
         className={`relative inline-block align-middle whitespace-nowrap ${vm.lineClassName ?? ""}`}
         style={
           {
-            ["--caret-blink-ms"]: `${caretBlinkMs}ms`,
-            ["--caret-inset"]: `${caretInsetPx}px`,
-            paddingInlineEnd: `${caretWidthPx}px`, // lane for caret thickness
+            ["--caret-blink-ms"]: `${vm.caretBlinkMs}ms`,
+            ["--caret-inset"]: `${vm.caretInsetPx}px`,
+            paddingInlineEnd: `${vm.caretWidthPx}px`, // lane for caret thickness
           } as React.CSSProperties
         }
       >
         {/* Text itself adds the visible gap before the caret lane */}
-        <span className="inline-block select-none" style={{ paddingInlineEnd: `${caretGapPx}px` }}>
+        <span className="inline-block select-none" style={{ paddingInlineEnd: `${vm.caretGapPx}px` }}>
           {renderRuns(visible)}
         </span>
 
@@ -90,7 +89,7 @@ export const TypedLine = memo(function TypedLine({
             vm.caretColorClass ?? "border-neutral-100",
           ].join(" ")}
           style={{
-            borderInlineEndWidth: `${caretWidthPx}px`,
+            borderInlineEndWidth: `${vm.caretWidthPx}px`,
             borderInlineEndColor: vm.caretColorHex ?? "currentColor",
             transform: "translateZ(0)",
             visibility: !started || (done && !vm.keepCaret && nextLineStarted) ? "hidden" : "visible",

@@ -1,4 +1,4 @@
-import React, {
+import {
   useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef
 } from "react";
 import { TypedLine, type TypedLineVM, type CharCell } from "./TypedLine.tsx";
@@ -15,13 +15,17 @@ export type TextSegment = {
 
 /** One animated line */
 export type TypedLineItem = {
-  text?: string;              // OR:
+  text?: string;              // plain text for this line
   segments?: TextSegment[];   // rich segments for this line
   msPerChar?: number;         // speed for this line (default inherited)
   lineDelayMs?: number;       // extra delay before this line starts (on top of previous lines)
   keepCaret?: boolean;        // keep caret after finishing (default true on the last line)
-  caretColorHex?: string;     // caret color (hex or CSS color)
-  caretColorClass?: string;   // or Tailwind class (static)
+  caretBlinkMs?: number;
+  caretWidthPx?: number;
+  caretGapPx?: number;
+  caretInsetPx?: number;
+  caretColorHex?: string;
+  caretColorClass?: string;
   /** pause points inside the line (character indexes) with extra delay (ms) */
   pausesAt?: Array<{ index: number; delayMs: number }>;
   /** Optional per-line wrapper classes for padding/border/etc */
@@ -30,6 +34,7 @@ export type TypedLineItem = {
 
 export type TypedTextProps = {
   lines: TypedLineItem[];
+  linesClassName?: string;
 
   /** Global timings */
   baseMsPerChar?: number;
@@ -37,10 +42,12 @@ export type TypedTextProps = {
   startDelayMs?: number;
 
   /** Caret presentation (overridable per line by color props) */
-  caretBlinkMs?: number;        // e.g. 600 for .6s
+  caretBlinkMs?: number;        // e.g. 1000 (ms)
   caretWidthPx?: number;       // e.g. 10 (px)
-  caretGapPx?: number;
+  caretGapPx?: number;        // e.g. 2 (px)
   caretInsetPx?: number;      // e.g. 2 (px)
+  caretColorHex?: string;     // caret color (hex or CSS color)
+  caretColorClass?: string;   // or Tailwind class (static)
 
   /** Looping / control */
   autoplay?: boolean;           // default: true
@@ -108,6 +115,7 @@ function buildCharPlan(line: TypedLineItem, baseMsPerChar: number) {
 const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText(
   {
     lines,
+    linesClassName = undefined,
     baseMsPerChar = 140,
     baseMsLineDelay = 1000,
     startDelayMs = 0,
@@ -115,6 +123,8 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
     caretWidthPx = 10,
     caretGapPx = 0,
     caretInsetPx = 5,
+    caretColorClass = undefined,
+    caretColorHex = undefined,
     autoplay = true,
     repeat = 0,
     repeatDelayMs = 1000,
@@ -135,9 +145,13 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
         chars,
         when: when.map(ms => ms + offset),
         keepCaret,
-        caretColorHex: line.caretColorHex,
-        caretColorClass: line.caretColorClass,
-        lineClassName: line.lineClassName ?? "",
+        caretBlinkMs: line.caretBlinkMs ?? caretBlinkMs,
+        caretWidthPx: line.caretWidthPx ?? caretWidthPx,
+        caretGapPx: line.caretGapPx ?? caretGapPx,
+        caretInsetPx: line.caretInsetPx ?? caretInsetPx,
+        caretColorHex: line.caretColorHex ?? caretColorHex,
+        caretColorClass: line.caretColorClass ?? caretColorClass,
+        lineClassName: line.lineClassName ?? linesClassName ?? "",
       };
       const lineStartMs = offset;
       const lineEndMs = when.length ? when[when.length - 1] + offset : offset;
