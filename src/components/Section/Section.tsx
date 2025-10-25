@@ -1,30 +1,43 @@
 import { type ReactNode } from "react";
-import { useReveal } from "../../hooks/useReveal";
+import { useReveal } from "../../hooks";
 
 type Props = {
   id: string;
   title?: string;
   children: ReactNode;
+  fullHeight?: boolean; // default true
+  snapTo?: boolean; // default true
 };
 
-export default function Section({ id, title, children }: Props) {
+export default function Section({ id, title, children, fullHeight = true, snapTo = true }: Props) {
   const { ref, visible } = useReveal();
+
   return (
     <section
       id={id}
+      data-snap-section={snapTo ? "true" : "false"}
       ref={ref}
-      className="py-20 scroll-mt-16"
+      className={[
+        fullHeight ? "h-dvh" : "min-h-dvh",  // device-viewport-height
+        "snap-start flex items-center py-10 scroll-mt-16"
+      ].join(" ")}
     >
-      {title && (
-        <h2 className="mb-8 text-2xl font-semibold tracking-wide text-cyan-300">
-          {title}
-        </h2>
-      )}
-      <div className={[
-        "transition-all duration-700",
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      ].join(" ")}>
-        {children}
+      <div className="w-full">
+        {title && (
+          <h2 className="mb-10 text-[clamp(1.75rem,3vw,2.25rem)] font-semibold tracking-wide text-[var(--accent)]">
+            {title}
+          </h2>
+        )}
+
+        {/* Reveal animation (replays on re-entry) */}
+        <div
+          className={[
+            "transition-all duration-1250 will-change-transform",
+            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+          ].join(" ")}
+        >
+          {children}
+        </div>
       </div>
     </section>
   );

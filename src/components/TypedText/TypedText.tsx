@@ -30,6 +30,7 @@ export type TypedLineItem = {
   pausesAt?: Array<{ index: number; delayMs: number }>;
   /** Optional per-line wrapper classes for padding/border/etc */
   lineClassName?: string;   // e.g. "px-2 py-1 rounded-md border border-neutral-700"
+  baseLineGapPx?: number;
 };
 
 export type TypedTextProps = {
@@ -48,6 +49,8 @@ export type TypedTextProps = {
   caretInsetPx?: number;      // e.g. 2 (px)
   caretColorHex?: string;     // caret color (hex or CSS color)
   caretColorClass?: string;   // or Tailwind class (static)
+
+  baseLineGapPx?: number;
 
   /** Looping / control */
   autoplay?: boolean;           // default: true
@@ -159,6 +162,7 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
       return { vm, lineStartMs, lineEndMs };
     });
     return result;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lines, baseMsPerChar, startDelayMs]);
 
   const totalDuration = useMemo(
@@ -206,7 +210,7 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
     runStart.current = performance.now();
     tick();
   }
-
+  
   function tick() {
     if (!running.current) return;
     const now = performance.now();
@@ -256,17 +260,16 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
   }
 
   return (
-    <div className={`grid place-items-center ${fontClass} ${fontSizeClass}`} aria-live={ariaLive}>
+    <div 
+      className={`grid place-items-center ${fontClass} ${fontSizeClass}`}
+      aria-live={ariaLive}
+    >
       {plan.map(({ vm }, i) => (
         <TypedLine
           key={i}
           vm={vm}
           count={counts[i]}
           nextLineStarted={i < plan.length - 1 ? counts[i + 1] > 0 : false}
-          caretWidthPx={caretWidthPx}
-          caretBlinkMs={caretBlinkMs}
-          caretInsetPx={caretInsetPx}
-          caretGapPx={caretGapPx}
         />
       ))}
     </div>

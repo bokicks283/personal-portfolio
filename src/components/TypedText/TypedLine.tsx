@@ -14,6 +14,7 @@ export type TypedLineVM = {
   caretColorHex?: string;
   caretColorClass?: string;
   lineClassName?: string;
+  baseLineGapPx?: number;
 };
 
 function renderRuns(chars: CharCell[]) {
