@@ -37,7 +37,12 @@ export default function PageNav({ sections }: Props) {
   return (
     <header 
       className="sticky top-0 z-50 backdrop-blur border-b border-[color:var(--ring)]"
-      style={{backgroundColor: isLightTheme ? "#FFFFFF33" : "#00000033"}}
+      data-sticky="top"
+      style={
+        {
+          backgroundColor: isLightTheme ? "rgb(255, 255, 255, 0.2)" : "rgb(0, 0, 0, 0.2)",
+        }
+      }
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <a href="#home" className="shrink-0">
@@ -58,8 +63,8 @@ export default function PageNav({ sections }: Props) {
               key={s.id}
               href={"#" + s.id}
               className={[
-                "transition-colors hover:text-[var(--accent)]",
-                active === s.id ? "text-[var(--accent)]" : "text-[var(--muted)]"
+                "nav-link",
+                active === s.id ? "nav-link--active" : ""
               ].join(" ")}
             >
               {s.label}
@@ -67,7 +72,7 @@ export default function PageNav({ sections }: Props) {
           ))}
         </nav>
         <div className="flex items-center gap-3">
-          <ThemeToggle />
+          {/* TODO: Replace with DropDown component. Use css to ensure it stays to the left of theme toggle */}
           <select id="nav-selector"
             className="md:hidden bg-transparent text-white/90 text-md outline-none border border-[color:var(--ring)] rounded-lg px-2 py-1"
             value={active ?? "home"}
@@ -81,6 +86,7 @@ export default function PageNav({ sections }: Props) {
               <option key={s.id} value={s.id} className="text-black">{s.label}</option>
             ))}
           </select>
+          <ThemeToggle />
         </div>
       </div>
     </header>

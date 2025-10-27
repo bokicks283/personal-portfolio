@@ -1,4 +1,3 @@
-// src/components/TypedLine.tsx
 import React, { memo } from "react";
 
 export type CharCell = { ch: string; bold: boolean; colorHex?: string; colorClass: string };
@@ -20,8 +19,8 @@ export type TypedLineVM = {
 function renderRuns(chars: CharCell[]) {
   if (!chars.length) return null;
   // Merge adjacent chars with equal style for fewer spans.
-  const runs: { text: string; bold: boolean; colorHex?: string; colorClass: string }[] = [];
-  let cur = { text: "", bold: chars[0].bold, colorHex: chars[0].colorHex, colorClass: chars[0].colorClass };
+  const runs: { text: string; bold?: boolean; colorHex?: string; colorClass?: string }[] = [];
+  let cur = { text: "", bold: chars?.[0]?.bold, colorHex: chars?.[0]?.colorHex, colorClass: chars?.[0]?.colorClass };
 
   const same = (a: typeof cur, b: typeof cur) =>
     a.bold === b.bold && a.colorHex === b.colorHex && a.colorClass === b.colorClass;

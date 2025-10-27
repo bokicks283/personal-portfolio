@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadFull } from "tsparticles";
 import type { IOptions, RecursivePartial } from "@tsparticles/engine";
@@ -8,30 +8,19 @@ type ParticleBackgroundProps = {
   children: JSX.Element | JSX.Element[];
   className?: string;
   zIndex?: number;
-  factor?: number;
+  /** negative values move the particles opposite scroll direction (parallax) */
+  factor?: number; // default -0.08
 };
 
-function ParticleBackground({ className, zIndex = 10, children, factor = -0.08 }: ParticleBackgroundProps) {
+function ParticleBackground({ className, zIndex = 10, children}: ParticleBackgroundProps) {
   const [init, setInit] = useState(false);
-  const wrapRef = useRef<HTMLDivElement | null>(null);
   const [colors, setColors] = useState({
     fg: "#ffffff",
     accent: "#ffffff",
     bg: "#000000",
   });
 
-  // update transform on scroll
-  useEffect(() => {
-    const onScroll = () => {
-      if (!wrapRef.current) return;
-      wrapRef.current.style.transform = `translateY(${window.scrollY * factor}px)`;
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [factor]);
-
-
+  // Keep particles colors synced to theme vars
   useEffect(() => {
     // Resolve colors whenever the theme changes
     const updateColors = () => {
@@ -50,30 +39,9 @@ function ParticleBackground({ className, zIndex = 10, children, factor = -0.08 }
   }, []);
   const particlesOptions: RecursivePartial<IOptions> = {
     background: {
-      size: "10%",
+      
       position: "10% 50%",
       color: colors.bg
-    },
-    interactivity: {
-      events: {
-        onClick: {
-          enable: true,
-          mode: "push"
-        },
-        onHover: {
-          enable: true,
-          mode: "repulse"
-        }
-      },
-      modes: {
-        push: {
-          quantity: 4
-        },
-        repulse: {
-          distance: 100,
-          duration: 0.4
-        }
-      }
     },
     particles: {
       color: {
@@ -121,21 +89,17 @@ function ParticleBackground({ className, zIndex = 10, children, factor = -0.08 }
     fullScreen: true
   }
   useEffect(() => {
-    if (init) {
-      return;
-    }
+    if (init) return;
     initParticlesEngine(async (engine) => {
       await loadFull(engine);
-    }).then(() => {
-      setInit(true);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    }).then(() => setInit(true));
+  }, [init]);
 
   return (
-    <div className={`relative min-h-screen ${className}`} style={{ zIndex: zIndex }}>
+    <div className={`relative min-h-screen ${className ?? ""}`} style={{ zIndex }}>
       {init && <Particles id="tsparticles" options={particlesOptions} />}
-      <div className={`relative`} style={{ zIndex: zIndex + 1 }}>
+      {/* Content sits above the fixed particles */}
+      <div className="relative" style={{ zIndex: zIndex + 1 }}>
         {children}
       </div>
     </div>

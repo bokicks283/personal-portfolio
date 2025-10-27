@@ -34,7 +34,7 @@ export function useScrollSnap(sectionSelector = '[data-snap-section="true"]') {
     window.setTimeout(() => { isSnapping.current = false; }, 420); // cooldown
   }, []);
 
-  // gather sections
+  // gather sections (resize)
   useEffect(() => {
     collect();
     const onResize = () => collect();
@@ -42,23 +42,43 @@ export function useScrollSnap(sectionSelector = '[data-snap-section="true"]') {
     return () => window.removeEventListener("resize", onResize);
   }, [collect]);
 
-  // wheel → snap
+  // also re-collect when DOM changes (e.g., you toggle snapTo, add/remove sections)
+  useEffect(() => {
+    const mo = new MutationObserver(() => collect());
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, [collect]);
+
+  // wheel → snap (only when a neighbor exists)
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      if (!sectionsRef.current.length) return;
+      const list = sectionsRef.current;
+      if (!list.length) return;
+
       const now = performance.now();
       if (isSnapping.current || now - lastIntent.current < 250) {
+        // if we're in a snap cooldown, block to avoid jitter
         e.preventDefault();
         return;
       }
+
       const dir = Math.sign(e.deltaY);
       if (dir === 0) return;
-      e.preventDefault();
-      lastIntent.current = now;
 
       const currIdx = nearestIndex(window.scrollY);
-      snapTo(currIdx + (dir > 0 ? 1 : -1));
+      const targetIdx = currIdx + (dir > 0 ? 1 : -1);
+
+      // If there is no neighbor (we're at ends), LET NATIVE SCROLL HAPPEN.
+      if (targetIdx < 0 || targetIdx >= list.length) {
+        return; // do not preventDefault
+      }
+
+      // We have a neighbor → do the snap and consume the wheel
+      e.preventDefault();
+      lastIntent.current = now;
+      snapTo(targetIdx);
     };
+
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
   }, [nearestIndex, snapTo]);

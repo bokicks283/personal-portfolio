@@ -1,8 +1,10 @@
-import { ReactNode } from "react";
+import { createContext, ReactNode } from "react";
 import { useScrollSnap } from "../../hooks/useScrollSnap";
-import { ScrollSnapCtx } from "./ScrollSnapHelper";
 
 
+export type Ctx = { activeIndex: number; snapTo: (i: number) => void };
+
+const ScrollSnapCtx = createContext<Ctx | null>(null);
 export function ScrollSnapProvider({ children }: { children: ReactNode }) {
   const value = useScrollSnap();
   return <ScrollSnapCtx.Provider value={value}>{children}</ScrollSnapCtx.Provider>;

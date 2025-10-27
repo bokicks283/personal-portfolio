@@ -1,7 +1,7 @@
 import {
   useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef
 } from "react";
-import { TypedLine, type TypedLineVM, type CharCell } from "./TypedLine.tsx";
+import { TypedLine, type TypedLineVM, type CharCell } from "./TypedLine";
 
 /** Styling for a piece of text inside a line */
 export type TextSegment = {
@@ -157,7 +157,8 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
         lineClassName: line.lineClassName ?? linesClassName ?? "",
       };
       const lineStartMs = offset;
-      const lineEndMs = when.length ? when[when.length - 1] + offset : offset;
+      const lastWhen = when?.[when.length - 1] ?? 0;
+      const lineEndMs = (when?.length ?? 0) ? lastWhen + offset : offset;
       offset = lineEndMs + (baseMsLineDelay ?? 0) + (line.lineDelayMs ?? 0); // next line offset includes requested gap
       return { vm, lineStartMs, lineEndMs };
     });
@@ -166,7 +167,7 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
   }, [lines, baseMsPerChar, startDelayMs]);
 
   const totalDuration = useMemo(
-    () => (plan.length ? plan[plan.length - 1].lineEndMs : 0),
+    () => plan[plan.length - 1]?.lineEndMs ?? 0,
     [plan]
   );
 
@@ -222,8 +223,12 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
       plan.forEach(({ vm }, i) => {
         // count how many timestamps <= elapsed
         let k = 0;
-        const when = vm.when;
-        while (k < when.length && when[k] <= elapsed) k++;
+        const when = vm.when ?? [];
+        while (k < when.length) {
+          const ts = when[k];
+          if (ts === undefined || ts > elapsed) break;
+          k++;
+        }
         if (k !== next[i]) next[i] = k;
       });
       return next;
@@ -268,8 +273,8 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
         <TypedLine
           key={i}
           vm={vm}
-          count={counts[i]}
-          nextLineStarted={i < plan.length - 1 ? counts[i + 1] > 0 : false}
+          count={counts[i] || 0}
+          nextLineStarted={i < plan.length - 1 ? (counts[i + 1] ?? 0) > 0 : false}
         />
       ))}
     </div>

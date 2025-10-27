@@ -24,14 +24,14 @@ export default function Projects() {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {projects.map((p) => (
-        <article key={p.title} className="group rounded-2xl border border-[color:var(--ring)]/70 p-5 hover:border-[color:var(--ring)] transition-colors">
+        <article key={p.title} className="group surface-card p-6">
           <header className="mb-2">
-            <h3 className="text-lg font-semibold">{p.title}</h3>
+            <h3 className="text-lg font-semibold text-[var(--fg)]">{p.title}</h3>
           </header>
-          <p className="text-[var(--muted)]/80">{p.blurb}</p>
+          <p className="text-[var(--muted)]/85">{p.blurb}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {p.tags.map(t => (
-              <span key={t} className="rounded-full border border-[color:var(--ring)]/65 px-2.5 py-1 text-xs text-[var(--fg)]/70">{t}</span>
+              <span key={t} className="badge badge-surface/90">{t}</span>
             ))}
           </div>
           <div className="mt-4 flex gap-4 text-sm">

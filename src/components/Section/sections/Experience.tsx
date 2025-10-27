@@ -28,17 +28,21 @@ const roles: Role[] = [
 
 export default function Experience() {
   return (
-    <ol className="relative border-s border-[color:var(--ring)]/40">
-      {roles.map((r, i) => (
-        <li key={i} className="ms-6 pb-8 last:pb-0">
-          <span className="absolute -start-1.5 mt-1 h-3 w-3 rounded-full bg-[color:var(--accent)] ring-4 ring-[var(--ring)]" />
-          <h3 className="font-semibold">{r.title} — <span className="text-[var(--fg)]/80">{r.company}</span></h3>
-          <div className="text-sm text-[var(--fg)]/60">{r.period}</div>
-          <ul className="mt-2 list-disc ps-5 text-[var(--fg)]/80">
-            {r.bullets.map((b, j) => <li key={j}>{b}</li>)}
-          </ul>
-        </li>
-      ))}
-    </ol>
+    <div className="surface-card p-6">
+      <ol className="relative border-s border-[color:var(--ring)]/35">
+        {roles.map((r, i) => (
+          <li key={i} className="ms-6 pb-8 last:pb-0">
+            <span className="absolute -start-1.5 mt-1 h-3 w-3 rounded-full bg-[color:var(--accent)] ring-4 ring-[var(--ring)]" />
+            <h3 className="font-semibold text-[var(--fg)]">
+              {r.title} — <span className="text-[var(--fg)]/80">{r.company}</span>
+            </h3>
+            <div className="text-sm text-[var(--fg)]/60">{r.period}</div>
+            <ul className="mt-2 list-disc ps-5 text-[var(--fg)]/80">
+              {r.bullets.map((b, j) => <li key={j}>{b}</li>)}
+            </ul>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }

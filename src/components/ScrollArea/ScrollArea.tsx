@@ -1,4 +1,3 @@
-// src/components/ui/ScrollArea.tsx
 import { useEffect, useRef } from "react";
 import { createOverlayScrollbar, OverlaySBOptions } from "../../utils/overlayScrollbar";
 
@@ -44,6 +43,7 @@ export default function ScrollArea({
       rafs.forEach(id => (id >= 0 ? cancelAnimationFrame(id) : clearTimeout(-id)));
       ctrl.destroy();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     sb?.thicknessPx, sb?.railRightPx, sb?.thumbRightPx,
     sb?.thumbMinPx, sb?.thumbMaxPx, sb?.hideAfterMs, sb?.fixedThumb,

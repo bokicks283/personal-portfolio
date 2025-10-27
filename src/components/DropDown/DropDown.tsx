@@ -28,7 +28,7 @@ type GroupedProps = BaseProps & { groups: Group[]; options?: never };
 
 export type DropdownProps = FlatProps | GroupedProps;
 
-export default function Dropdown(props: DropdownProps) {
+export default function DropDown(props: DropdownProps) {
   const {
     value,
     onChange,
@@ -83,11 +83,6 @@ export default function Dropdown(props: DropdownProps) {
     return () => ro.disconnect();
   }, []);
 
-  const baseBtn =
-    "inline-flex items-center gap-2 rounded-lg border border-[color:var(--ring)] " +
-    "bg-[var(--surface)] px-3 py-2 text-sm text-[var(--fg)] " +
-    "hover:ring-2 hover:ring-[color:var(--ring)] transition min-w-0";
-
   // normalize height: number => rem string
   return (
     <div className="relative" ref={rootRef}>
@@ -97,7 +92,7 @@ export default function Dropdown(props: DropdownProps) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen(o => !o)}
-        className={`${baseBtn} ${className}`}
+        className={`btn-ghost min-w-0 ${className}`}
         style={{ minWidth: `${minWidthRem}rem` }}
       >
         {insideLabel && <span className="text-[var(--muted)]">{insideLabel}</span>}
@@ -129,8 +124,8 @@ export default function Dropdown(props: DropdownProps) {
               thumbMinPx: 24,     // shorter thumb
               thumbRightPx: 2,
               railRightPx: 0,
-              railInsetTopPx: 4,
-              railInsetBottomPx: 4,
+              railInsetTopPx: 6,
+              railInsetBottomPx: 6,
               hideAfterMs: 600,   // fade faster in menus
             }}
           >

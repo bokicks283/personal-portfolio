@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+
+
 /* global base rules and tsparticles global target */
 @layer base {
 
@@ -10,15 +12,37 @@
     height: 100%;
     /* font family configured in tailwind.config.js via font-sans */
   }
-  
+
+  :root {
+    --snap-pad-top: 0px;
+    --snap-pad-bottom: 0px;
+
+    /* Reveal & card blur controls */
+    --ease: cubic-bezier(.25, .5, .75, 1);
+    --reveal-dur: .8s;
+    --reveal-ease: var(--ease);
+    --reveal-translate: 30px;
+    /* Card blur: sections can override this during reveal */
+    --card-blur-target: 8px;
+    /* frosted glass strength after reveal */
+  }
+
+  /* Applies to all snap scrollIntoView calls & in-page anchors */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--snap-pad-top);
+    scroll-padding-bottom: var(--snap-pad-bottom);
+  }
+
+
   /* === Dark / Vivid === */
   [data-theme="redblack"] {
     --bg: #0b0b0c;
     --fg: #f5f5f7;
     --muted: rgba(245, 245, 247, 0.7);
-    --surface: #1b0909;
-    --surface-85: rgba(27, 9, 9, 0.85);
-    --surface-92: rgba(27, 9, 9, 0.92);
+    --surface: rgb(44, 7, 7);
+    --surface-85: rgba(48, 7, 7, 0.85);
+    --surface-92: rgba(48, 7, 7, 0.92);
     --accent: #ef4444;
     /* red-500 */
     --accent-fg: #fecaca;
@@ -507,34 +531,6 @@
     top: 0;
     z-index: -1;
   }
-
-  /* Universal themed scrollbar */
-  .themed-scroll {
-    scrollbar-width: thin;
-    /* Firefox */
-    scrollbar-color: var(--ring) var(--surface-85);
-    /* thumb / track */
-  }
-
-  /* Chromium/WebKit */
-  .themed-scroll::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  .themed-scroll::-webkit-scrollbar-track {
-    background: var(--surface-85);
-    border-radius: 9999px;
-  }
-
-  .themed-scroll::-webkit-scrollbar-thumb {
-    background: color-mix(in oklab, var(--ring) 75%, transparent);
-    border-radius: 9999px;
-  }
-
-  .themed-scroll::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in oklab, var(--accent) 80%, transparent);
-  }
 }
 
 @layer utilities {
@@ -548,6 +544,154 @@
     50% {
       opacity: 1
     }
+  }
+
+  /* Fun animations (short + snappy) */
+  @keyframes badge-pop {
+    0% {
+      transform: scale(.9)
+    }
+
+    70% {
+      transform: scale(1.05)
+    }
+
+    100% {
+      transform: scale(1)
+    }
+  }
+
+  @keyframes badge-wiggle {
+
+    0%,
+    100% {
+      transform: rotate(0deg)
+    }
+
+    25% {
+      transform: rotate(3deg)
+    }
+
+    75% {
+      transform: rotate(-3deg)
+    }
+  }
+
+  @keyframes badge-wobble {
+    0% {
+      transform: translateX(0)
+    }
+
+    25% {
+      transform: translateX(-2px)
+    }
+
+    50% {
+      transform: translateX(2px)
+    }
+
+    75% {
+      transform: translateX(-1px)
+    }
+
+    100% {
+      transform: translateX(0)
+    }
+  }
+
+  @keyframes badge-tilt {
+    0% {
+      transform: skewX(0deg)
+    }
+
+    50% {
+      transform: skewX(6deg)
+    }
+
+    100% {
+      transform: skewX(0deg)
+    }
+  }
+
+  @keyframes badge-jelly {
+    0% {
+      transform: scale3d(1, 1, 1)
+    }
+
+    30% {
+      transform: scale3d(1.15, .85, 1)
+    }
+
+    40% {
+      transform: scale3d(.95, 1.05, 1)
+    }
+
+    50% {
+      transform: scale3d(1.05, .95, 1)
+    }
+
+    65% {
+      transform: scale3d(1.02, .98, 1)
+    }
+
+    100% {
+      transform: scale3d(1, 1, 1)
+    }
+  }
+
+  @keyframes badge-float {
+    0% {
+      transform: translateY(0)
+    }
+
+    50% {
+      transform: translateY(-3px)
+    }
+
+    100% {
+      transform: translateY(0)
+    }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .badge {
+      transition: none !important;
+    }
+
+    .anim-pop,
+    .anim-wiggle,
+    .anim-wobble,
+    .anim-tilt,
+    .anim-jelly,
+    .anim-float {
+      animation: none !important;
+    }
+  }
+
+  /* Animation utility classes (durations tuned to feel crisp) */
+  .anim-pop {
+    animation: badge-pop .35s cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  .anim-wiggle {
+    animation: badge-wiggle .45s ease-in-out both;
+  }
+
+  .anim-wobble {
+    animation: badge-wobble .45s ease-out both;
+  }
+
+  .anim-tilt {
+    animation: badge-tilt .35s ease-out both;
+  }
+
+  .anim-jelly {
+    animation: badge-jelly .5s ease-out both;
+  }
+
+  .anim-float {
+    animation: badge-float .6s ease-out both;
   }
 
   /* Blink speed controlled by CSS var --caret-blink-ms (default .6s) */
@@ -578,4 +722,213 @@
     line-height: inherit;
     width: 0;
   }
+
+  /* Animate DESCENDANTS instead of the section node.
+   Target cards and any element you mark as .reveal-item (e.g., Hero root) */
+  /* When not revealed yet, translate depends on scroll direction */
+  section[data-reveal="off"][data-dir="down"] .surface-card,
+  section[data-reveal="off"][data-dir="down"] .reveal-item {
+    opacity: 0;
+    transform: translateY(var(--reveal-translate));
+  }
+
+  section[data-reveal="off"][data-dir="up"] .surface-card,
+  section[data-reveal="off"][data-dir="up"] .reveal-item {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--reveal-translate)));
+  }
+
+  /* When revealed, settle to neutral */
+  section[data-reveal="on"] .surface-card,
+  section[data-reveal="on"] .reveal-item {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Keep your existing transition rules (you already have these) */
+  .surface-card,
+  .reveal-item {
+    transition:
+      opacity var(--reveal-dur) var(--reveal-ease),
+      transform var(--reveal-dur) var(--reveal-ease);
+  }
+
+  /* Snap Section Size Helpers */
+  /* The vertical snap container (whatever element actually scrolls) */
+  .snap-container--y {
+    scroll-snap-type: y mandatory;
+    /* 👇 make snap positions account for sticky header/footer */
+    scroll-padding-top: var(--snap-pad-top, 0px);
+    scroll-padding-bottom: var(--snap-pad-bottom, 0px);
+  }
+
+  /* Height helpers: viewport minus sticky bars */
+  .snap-h-full {
+    block-size: calc(100dvh - var(--snap-pad-top, 0px) - var(--snap-pad-bottom, 0px));
+  }
+
+  .snap-h-center,
+  .snap-h-fit {
+    min-block-size: calc(100dvh - var(--snap-pad-top, 0px) - var(--snap-pad-bottom, 0px));
+  }
+
+  /* content-first variant if you want it later */
+  .snap-h-fit {
+    min-block-size: min(var(--_snap-vh, 100dvh), max-content);
+  }
+
+  /* Default snap alignment */
+  .snap-container--y>[data-snap-section="true"] {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  /* You can opt a section into center/end with data-snap-align */
+  [data-snap-align="center"] {
+    scroll-snap-align: center;
+  }
+
+  [data-snap-align="end"] {
+    scroll-snap-align: end;
+  }
+}
+
+@layer components {
+
+  /* === Unified UI building blocks === */
+  .surface-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+
+    /* PageNav uses an explicit semi-transparent color; do the same */
+    background: color-mix(in oklab, var(--surface) 55%, transparent);
+
+    /* use Tailwind utilities via @apply just like the header */
+    /* border + shadow consistent with your design */
+    @apply border border-[color:var(--ring)]/45 shadow-xl;
+
+    /* the key: direct backdrop-blur like PageNav */
+    @apply backdrop-blur-xs;
+
+    /* keep smooth theme/reveal transitions (no filter/transform here) */
+    transition:
+      opacity var(--reveal-dur) var(--reveal-ease),
+      transform var(--reveal-dur) var(--reveal-ease),
+      background-color var(--reveal-dur) var(--reveal-ease),
+      box-shadow var(--reveal-dur) var(--reveal-ease),
+      backdrop-filter var(--reveal-dur) var(--reveal-ease);
+  }
+
+  /* Section wrapper must not create a compositing trap */
+  section[data-snap-section] {
+    overflow: visible;
+    /* let backdrop sample behind cards */
+    background-color: transparent;
+    transform: none;
+    filter: none;
+    backface-visibility: visible;
+    perspective: none;
+    transform-style: flat;
+  }
+
+  /* Section title (kept for later use; non-Hero sections) */
+  .section-title {
+    @apply text-2xl font-semibold tracking-tight text-[var(--accent)];
+  }
+
+  /* Badge surface: solid but still themed */
+  .badge-surface {
+    background: var(--surface);
+    @apply rounded-full border border-[color:var(--ring)]/40;
+  }
+
+  /* Base badge */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full text-xs font-medium px-3 py-1;
+    @apply select-none border border-[color:var(--ring)]/40 text-[var(--fg)]/80;
+    @apply bg-[color:var(--surface-92)]/70 transition-all duration-200 ease-out;
+    will-change: transform, background-color, color, border-color, box-shadow;
+  }
+
+  .badge:hover {
+    @apply bg-[var(--accent)] text-[var(--bg)] border-[color:var(--accent)]/70;
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 50%, transparent);
+  }
+
+  /* Variants if you want them (optional) */
+  .badge--soft {
+    @apply bg-[var(--surface)]/60;
+  }
+
+  .badge--accent {
+    @apply bg-[var(--accent)] text-[var(--bg)] border-[color:var(--accent)];
+  }
+
+  .page-container {
+    @apply mx-auto max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Nav links */
+  .nav-link {
+    @apply transition-colors text-[var(--muted)];
+  }
+
+  .nav-link:hover {
+    @apply text-[var(--accent)];
+  }
+
+  .nav-link--active {
+    @apply text-[var(--accent)];
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-2xl font-medium transition-colors select-none;
+    @apply px-5 py-2;
+  }
+
+  .btn-accent {
+    @apply bg-[var(--accent)]/90 text-[var(--bg)];
+  }
+
+  .btn-accent:hover {
+    @apply bg-[var(--accent)];
+  }
+
+  .btn-outline {
+    @apply border border-[color:var(--ring)]/60 text-[var(--fg)]/90;
+  }
+
+  .btn-outline:hover {
+    @apply border-[color:var(--accent)];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-lg border border-[color:var(--ring)];
+    @apply bg-[var(--surface)] px-3 py-2 text-sm text-[var(--fg)] transition;
+  }
+
+  .btn-ghost:hover {
+    @apply ring-2 ring-[color:var(--ring)];
+  }
+
+  /* Inputs */
+  .input,
+  .select,
+  .textarea {
+    @apply rounded-xl bg-[color:var(--surface)]/70 px-4 py-2 outline-none border border-[color:var(--ring)]/30 text-[var(--fg)];
+  }
+
+  .input::placeholder,
+  .select::placeholder,
+  .textarea::placeholder {
+    @apply text-[var(--fg)]/40;
+  }
+
+  /* Accent link */
+  .link-accent {
+    @apply text-[var(--accent)] hover:underline;
+  }
+
 }
