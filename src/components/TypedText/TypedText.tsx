@@ -266,7 +266,7 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
 
   return (
     <div 
-      className={`grid place-items-center ${fontClass} ${fontSizeClass}`}
+      className={`grid ${fontClass} ${fontSizeClass}`}
       aria-live={ariaLive}
     >
       {plan.map(({ vm }, i) => (

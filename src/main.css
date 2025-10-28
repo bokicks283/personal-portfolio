@@ -1,6 +1,28 @@
 @import "tailwindcss";
 
-
+@theme{
+  /* Custom breakpoints */
+  --breakpoint-mobile: 26rem; /* 414px */
+  --breakpoint-mobile-lg: 30rem; /* 480px */
+  --breakpoint-tablet: 48rem; /* 768px */
+  --breakpoint-laptop: 64rem; /* 1024px */
+  --breakpoint-desktop-HD: 85.4rem; /* 1366px */
+  --breakpoint-desktop-FHD: 100rem; /* 1600px */
+  --breakpoint-desktop-2k: 120.0625rem; /* 1921px */
+  --breakpoint-desktop-4k: 160.0625rem; /* 2561px */
+  --breakpoint-desktop-8k: 240.0625rem;  /* 3841px */
+  --text-2xs: .625rem; /* 10px */
+  --text-3xs: .5rem; /* 8px */
+  --text-4xs: .375rem; /* 6px */
+  --text-5xs: .25rem; /* 4px */
+  --text-4.5xl: 2.625rem; /* 42px */
+  --text-10xl: 10rem; /* 160px */
+  --text-11xl: 12rem; /* 192px */
+  --text-12xl: 14rem; /* 224px */
+  --text-13xl: 16rem; /* 256px */
+  --text-14xl: 18rem; /* 288px */
+  --text-15xl: 20rem; /* 320px */
+}
 
 /* global base rules and tsparticles global target */
 @layer base {
@@ -658,7 +680,6 @@
     .badge {
       transition: none !important;
     }
-
     .anim-pop,
     .anim-wiggle,
     .anim-wobble,
@@ -837,36 +858,60 @@
     @apply text-2xl font-semibold tracking-tight text-[var(--accent)];
   }
 
-  /* Badge surface: solid but still themed */
-  .badge-surface {
-    background: var(--surface);
-    @apply rounded-full border border-[color:var(--ring)]/40;
-  }
-
-  /* Base badge */
-  .badge {
+  /* Base badge*/
+  .badge,
+  .badge-solid,
+  .badge-soft,
+  .badge-accent {
     @apply inline-flex items-center gap-1 rounded-full text-xs font-medium px-3 py-1;
-    @apply select-none border border-[color:var(--ring)]/40 text-[var(--fg)]/80;
-    @apply bg-[color:var(--surface-92)]/70 transition-all duration-200 ease-out;
+    @apply select-none border;
+    @apply transition-all duration-200 ease-out;
     will-change: transform, background-color, color, border-color, box-shadow;
   }
 
-  .badge:hover {
-    @apply bg-[var(--accent)] text-[var(--bg)] border-[color:var(--accent)]/70;
+  .badge:hover,
+  .badge-solid:hover,
+  .badge-soft:hover,
+  .badge-accent:hover {
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 50%, transparent);
   }
 
-  /* Variants if you want them (optional) */
-  .badge--soft {
-    @apply bg-[var(--surface)]/60;
+  /* Base badge colors */
+  .badge {
+    @apply bg-[var(--surface)]/70 border-[var(--ring)]/40 text-[var(--fg)]/80
   }
 
-  .badge--accent {
-    @apply bg-[var(--accent)] text-[var(--bg)] border-[color:var(--accent)];
+  .badge:hover {
+    @apply bg-[var(--accent)]/90 border-[var(--accent)]/70 text-[var(--bg)];
+
+  }
+
+  /* Badge variants */
+  .badge-solid {
+    @apply bg-[var(--surface)] border-[var(--ring)] text-[var(--fg)];
+  }
+
+  .badge-solid:hover {
+    @apply bg-[var(--accent)] border-[var(--accent)] text-[var(--bg)];
+  }
+
+  .badge-soft {
+    @apply bg-[var(--surface)]/40 border-[var(--ring)]/20 text-[var(--fg)]/60;
+  }
+
+  .badge-soft:hover {
+    @apply bg-[var(--accent)]/60 border-[var(--accent)]/40 text-[var(--bg)]/80;
+  }
+
+  .badge-accent {
+    @apply bg-[var(--accent)]/70 border-[var(--ring)]/40 text-[var(--bg)]/80;
+  }
+  .badge-accent:hover {
+    @apply bg-[var(--surface)]/90 border-[var(--ring)]/70 text-[var(--fg)];
   }
 
   .page-container {
-    @apply mx-auto max-w-6xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full sm:max-w-[75%] px-4 sm:px-6 lg:px-8 ;
   }
 
   /* Nav links */
@@ -931,4 +976,28 @@
     @apply text-[var(--accent)] hover:underline;
   }
 
+  /* Text Styles */
+  .text-header-main {
+    @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold;
+  }
+
+  .text-header-sub {
+    @apply  desktop-FHD:text-7xl desktop-2k:text-8xl font-bold;
+  }
+
+  .text-header-sub-2 {
+    @apply desktop-FHD:text-3xl desktop-2k:text-4.5xl font-semibold;
+  }
+
+  .text-content {
+    @apply desktop-FHD:text-xl desktop-2k:text-2xl;
+  }
+
+  .text-detail {
+    @apply desktop-FHD:text-sm desktop-2k:text-lg;
+  }
+
+  .text-detail-2 {
+    @apply desktop-FHD:text-xs desktop-2k:text-sm;
+  }
 }

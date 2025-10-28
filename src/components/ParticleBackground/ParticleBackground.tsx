@@ -39,7 +39,6 @@ function ParticleBackground({ className, zIndex = 10, children}: ParticleBackgro
   }, []);
   const particlesOptions: RecursivePartial<IOptions> = {
     background: {
-      
       position: "10% 50%",
       color: colors.bg
     },
@@ -65,7 +64,7 @@ function ParticleBackground({ className, zIndex = 10, children}: ParticleBackgro
           min: 1,
           max: 6
         },
-        straight: true
+        straight: false
       },
       number: {
         density: {
@@ -82,7 +81,7 @@ function ParticleBackground({ className, zIndex = 10, children}: ParticleBackgro
       size: {
         value: {
           min: 1,
-          max: 5
+          max: 6
         }
       }
     },

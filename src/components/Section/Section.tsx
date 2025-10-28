@@ -53,7 +53,7 @@ export default function Section({
     >
       <div className="w-full reveal-item px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
         {title && (
-          <header className="mb-8">
+          <header className="mb-8 pl-2">
             <TypedText
               ref={titleRef}
               lines={[
@@ -64,11 +64,11 @@ export default function Section({
               caretInsetPx={0}
               autoplay={false}
               caretGapPx={4}
-              baseMsPerChar={50}
+              baseMsPerChar={100}
               baseMsLineDelay={0}
-              startDelayMs={250}
+              startDelayMs={300}
               repeat={0}
-              fontSizeClass="text-2xl md:text-3xl font-semibold tracking-tight"
+              fontSizeClass="text-header-sub font-bold"
             />
           </header>
         )}

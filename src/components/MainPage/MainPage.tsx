@@ -9,7 +9,7 @@ import Experience from "../Section/sections/Experience";
 import Contact from "../Section/sections/Contact";
 import ParticleBackground from "../ParticleBackground";
 import { ScrollSnapProvider } from "../../providers";
-import { useBadgeAnimation, usePageOverlayScrollbar } from "../../hooks";
+import { usePageOverlayScrollbar } from "../../hooks";
 import { useSnapBoundOffsets } from "../../hooks/useSnapBoundOffsets";
 
 export default function MainPage() {
@@ -20,7 +20,6 @@ export default function MainPage() {
     railInsetTopPx: 70,
     hideAfterMs: 900,
   });
-  useBadgeAnimation();
   useSnapBoundOffsets(".page-container.snap-container--y");
 
   const sections = [
@@ -35,7 +34,6 @@ export default function MainPage() {
   return (
     <ScrollSnapProvider>
       <ThemeProvider>
-        {/* Giving ParticleBackground a background color of " " confuses tsparticles making it default to className */}
         <ParticleBackground className="min-h-screen text-[var(--fg)] selection:bg-[var(--accent)]">
           <PageNav sections={sections} />
           <main className="page-container snap-container--y">
