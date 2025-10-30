@@ -44,7 +44,7 @@ export default function MainPage() {
             <Section id="experience" title="Experience"><Experience /></Section>
             <Section id="contact" snapHeight="center" snapAlign="center" title="Contact"><Contact /></Section>
           </main>
-          <footer className="mt-0 border-t border-[color:var(--ring)] py-4 text-center text-sm text-[var(--muted)]">
+          <footer className="mt-0 border-t border-[color:var(--ring)] py-4 text-center text-detail text-[var(--muted)]">
             <span>© {new Date().getFullYear()} Ronald S. Bocchichio — Built with <a href="https://react.dev/">React</a>, <a href="https://particles.js.org/">tsparticles</a> & <a href="https://tailwindcss.com/">Tailwind CSS</a></span>
           </footer>
         </ParticleBackground>

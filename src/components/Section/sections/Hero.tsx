@@ -42,7 +42,7 @@ export default function Hero() {
           lines={[
             {
               segments: [
-                { text: "Ronald Bocchichio", bold: true, colorClass: "text-[var(--fg)]" },
+                { text: "Ronald Bocchichio", bold: true, colorClass: "text-[var(--fg)] text-hero" },
               ]
             },
             {
@@ -58,7 +58,7 @@ export default function Hero() {
               ],
               caretWidthPx: 2,
               caretInsetPx: 0,
-              lineClassName: "text-[var(--fg)] text-xl",
+              lineClassName: "text-[var(--fg)] text-header-3",
               msPerChar: 55,
               pausesAt: [
                 { index: 18, delayMs: 1000 },
@@ -69,8 +69,8 @@ export default function Hero() {
           ]}
         />
         <div className="mt-8 flex items-center justify-center gap-3">
-          <a href="#projects" className="btn btn-accent">View Projects</a>
-          <a href="#contact" className="btn btn-outline">Contact</a>
+          <a href="#projects" className="btn btn-accent text-detail">View Projects</a>
+          <a href="#contact" className="btn btn-outline text-detail">Contact</a>
 
         </div>
       </div>

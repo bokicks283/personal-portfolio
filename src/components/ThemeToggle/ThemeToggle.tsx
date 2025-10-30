@@ -85,7 +85,7 @@ export default function ThemeToggle() {
       groups={GROUPS}
       maxMenuHeight={20}
       insideLabel="Theme"
-      separator={<span className="text-[var(--accent)] mx-1">•</span>}
+      separator={<span className="text-[var(--accent)] text-detail mx-1">•</span>}
       showSelectedValue
     />
   );

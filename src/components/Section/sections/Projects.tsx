@@ -28,7 +28,7 @@ export default function Projects() {
       {projects.map((p) => (
         <article key={p.title} className="group surface-card p-6">
           <header className="mb-2">
-            <h3 className="text-header-sub-2 text-[var(--fg)]">{p.title}</h3>
+            <h3 className="text-header-2 text-[var(--fg)]">{p.title}</h3>
           </header>
           <p className="text-content text-[var(--muted)]/85">{p.blurb}</p>
           <div className="mt-3 flex flex-wrap gap-2">

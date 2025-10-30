@@ -22,6 +22,10 @@
   --text-13xl: 16rem; /* 256px */
   --text-14xl: 18rem; /* 288px */
   --text-15xl: 20rem; /* 320px */
+  --h-17: calc(var(--spacing) * 17) /* 68px */
+  --h-18: calc(var(--spacing) * 18) /* 72px */
+  --h-19: calc(var(--spacing) * 19) /* 76px */
+  --h-20: calc(var(--spacing) * 20) /* 80px */
 }
 
 /* global base rules and tsparticles global target */
@@ -930,7 +934,7 @@
   /* Buttons */
   .btn {
     @apply inline-flex items-center justify-center rounded-2xl font-medium transition-colors select-none;
-    @apply px-5 py-2;
+    @apply desktop-FHD:px-8 desktop-FHD:py-3.5 desktop-2k:px-10 desktop-2k:py-5;
   }
 
   .btn-accent {
@@ -977,20 +981,31 @@
   }
 
   /* Text Styles */
+  .text-hero {
+    @apply tablet:text-5xl laptop:text-6xl desktop-HD:text-7xl desktop-FHD:text-9xl desktop-2k:text-10xl font-extrabold;
+  }
   .text-header-main {
     @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold;
   }
 
-  .text-header-sub {
+  .text-header-1 {
     @apply  desktop-FHD:text-7xl desktop-2k:text-8xl font-bold;
   }
 
-  .text-header-sub-2 {
+  .text-header-2 {
     @apply desktop-FHD:text-3xl desktop-2k:text-4.5xl font-semibold;
+  }
+
+  .text-header-3 {
+    @apply desktop-FHD:text-2xl desktop-2k:text-3xl font-medium;
   }
 
   .text-content {
     @apply desktop-FHD:text-xl desktop-2k:text-2xl;
+  }
+
+  .text-content-2 {
+    @apply desktop-FHD:text-lg desktop-2k:text-xl;
   }
 
   .text-detail {

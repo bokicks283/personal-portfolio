@@ -39,11 +39,11 @@ export default function Experience() {
         {roles.map((r, i) => (
           <li key={i} className="ms-6 pb-8 last:pb-0">
             <span className="absolute -start-1.5 mt-1 h-3 w-3 rounded-full bg-[color:var(--accent)] ring-4 ring-[var(--ring)]" />
-            <h3 className="font-semibold text-[var(--fg)] text-header-sub-2">
+            <h3 className="font-semibold text-[var(--fg)] text-header-2">
               {r.title} — <span className="text-[var(--fg)]/80">{r.company}</span>
             </h3>
-            <div className="text-[var(--fg)]/60 desktop-FHD:text-lg">{r.period}</div>
-            <ul className="mt-2 list-disc ps-5 text-[var(--fg)]/80 text-content">
+            <div className="text-[var(--fg)]/60 text-content-2">{r.period}</div>
+            <ul className="mt-2 list-disc ps-5 text-[var(--fg)]/80 text-content desktop-FHD:leading-8 desktop-2k:leading-11">
               {r.bullets.map((b, j) => <li key={j}>{b}</li>)}
             </ul>
           </li>

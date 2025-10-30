@@ -35,7 +35,7 @@ export default function PageNav({ sections }: Props) {
   const isLightTheme = LIGHT_THEMES.has(theme);
   const logoSrc = isLightTheme ? RBLogoDark : RBLogo;
   return (
-    <header 
+    <header
       className="sticky top-0 z-50 backdrop-blur border-b border-[color:var(--ring)]"
       data-sticky="top"
       style={
@@ -44,10 +44,10 @@ export default function PageNav({ sections }: Props) {
         }
       }
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div className="mx-10 max-w-full px-4 sm:px-6 desktop-2k:px-0 desktop-FHD:h-17 desktop-2k:h-20 flex items-center justify-between">
         <a href="#home" className="shrink-0">
           <span
-            className="block h-12 w-12 rounded-full overflow-hidden ring-1 ring-[color:var(--ring)] bg-[var(--surface)] place-items-center"
+            className="block desktop-FHD:h-13 desktop-FHD:w-13 desktop-2k:h-16 desktop-2k:w-16 rounded-full overflow-hidden ring-1 ring-[color:var(--ring)] bg-[var(--surface)] place-items-center"
             aria-label="Home"
           >
             <img
@@ -57,20 +57,22 @@ export default function PageNav({ sections }: Props) {
             />
           </span>
         </a>
-        <nav className="hidden md:flex gap-7 text-lg">
-          {sections.map(s => (
-            <a
-              key={s.id}
-              href={"#" + s.id}
-              className={[
-                "nav-link",
-                active === s.id ? "nav-link--active" : ""
-              ].join(" ")}
-            >
-              {s.label}
-            </a>
-          ))}
-        </nav>
+        <div>
+          <nav className="hidden md:flex gap-7 text-content">
+            {sections.map(s => (
+              <a
+                key={s.id}
+                href={"#" + s.id}
+                className={[
+                  "nav-link",
+                  active === s.id ? "nav-link--active" : ""
+                ].join(" ")}
+              >
+                {s.label}
+              </a>
+            ))}
+          </nav>
+        </div>
         <div className="flex items-center gap-3">
           {/* TODO: Replace with DropDown component. Use css to ensure it stays to the left of theme toggle */}
           <select id="nav-selector"
@@ -86,7 +88,7 @@ export default function PageNav({ sections }: Props) {
               <option key={s.id} value={s.id} className="text-black">{s.label}</option>
             ))}
           </select>
-          <ThemeToggle />
+          <ThemeToggle/>
         </div>
       </div>
     </header>

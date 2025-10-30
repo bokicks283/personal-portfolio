@@ -68,7 +68,7 @@ export default function Section({
               baseMsLineDelay={0}
               startDelayMs={300}
               repeat={0}
-              fontSizeClass="text-header-sub font-bold"
+              fontSizeClass="text-header-1 font-bold"
             />
           </header>
         )}

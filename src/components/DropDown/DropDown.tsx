@@ -39,7 +39,7 @@ export default function DropDown(props: DropdownProps) {
     showSelectedValue = false,
     chevronIcon,
     placeholder = "Select",
-    className = "",
+    dropDownClassName = "",
   } = props;
 
   const [open, setOpen] = useState(false);
@@ -92,17 +92,17 @@ export default function DropDown(props: DropdownProps) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen(o => !o)}
-        className={`btn-ghost min-w-0 ${className}`}
+        className={`btn-ghost min-w-0 ${dropDownClassName}`}
         style={{ minWidth: `${minWidthRem}rem` }}
       >
-        {insideLabel && <span className="text-[var(--muted)]">{insideLabel}</span>}
+        {insideLabel && <span className="text-[var(--muted)] text-detail-2">{insideLabel}</span>}
         {separator !== undefined ? <span aria-hidden="true">{separator}</span> : null}
         {showSelectedValue && (
-          <span className="truncate text-[var(--muted)]">{currentLabel}</span>
+          <span className="truncate text-[var(--muted)] text-detail-2">{currentLabel}</span>
         )}
         <span className="ml-auto pl-1 text-[var(--muted)]">
           {chevronIcon ?? (
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <svg className="desktop-2k:h-6 desktop-2k:w-6" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.25a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08z" />
             </svg>
           )}
