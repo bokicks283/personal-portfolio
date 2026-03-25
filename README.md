@@ -1,73 +1,71 @@
-# React + TypeScript + Vite
+# Personal Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript + Tailwind CSS portfolio built with Vite.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19
+- TypeScript 5
+- Tailwind CSS 4
+- Vite 8
 
-## React Compiler
+## Project Layout
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+src/
+  app/
+    App.tsx
+    styles.css
+    providers/
+  features/
+    portfolio/
+      MainPage/
+      PageNav/
+      Section/
+        sections/
+  shared/
+    components/
+      Badge/
+      DropDown/
+      ParticleBackground/
+      ScrollArea/
+      ThemeToggle/
+      TypedText/
+    hooks/
+    lib/
+  assets/
+  content/
+  main.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Why This Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `app/`: app bootstrap concerns (root app component, global styles, providers).
+- `features/`: page/domain-specific UI and composition (`portfolio`).
+- `shared/`: reusable, feature-agnostic components/hooks/libs.
+- `content/`: structured data/content used by the UI.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Path Aliases
+
+- `@/` points to `src/`.
+- Configured in:
+  - `tsconfig.json`
+  - `vite.config.ts`
+
+## Scripts
+
+```bash
+npm run dev
+npm run dev:host
+npm run typecheck
+npm run lint
+npm run build
+npm run preview
 ```
+
+## Documentation
+
+- [Docs index](./docs/README.md)
+- [Architecture docs](./docs/architecture/README.md)
+- [Tooling alignment report](./docs/tooling/stack-alignment-2026-03.md)
+- [Generated file-by-file reference](./docs/repo-reference/README.md)
