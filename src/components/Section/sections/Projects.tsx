@@ -1,3 +1,5 @@
+import Badge from "../../Badge";
+
 type Project = {
   title: string;
   blurb: string;
@@ -11,7 +13,7 @@ const projects: Project[] = [
     title: "TypedText — React typing animation",
     blurb: "High‑performance, caret‑aware typing component with precise scheduling and replay controls.",
     tags: ["React", "TypeScript", "Tailwind"],
-    repo: "https://github.com/bokicks283/PersonalWebsite",
+    repo: "https://github.com/bokicks283/personal-portfolio",
   },
   {
     title: "CTM QA Automation",
@@ -24,19 +26,19 @@ export default function Projects() {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {projects.map((p) => (
-        <article key={p.title} className="group rounded-2xl border border-white/10 p-5 hover:border-cyan-300/60 transition-colors">
+        <article key={p.title} className="group surface-card p-6">
           <header className="mb-2">
-            <h3 className="text-lg font-semibold">{p.title}</h3>
+            <h3 className="text-header-2 text-[var(--fg)]">{p.title}</h3>
           </header>
-          <p className="text-white/70">{p.blurb}</p>
+          <p className="text-content text-[var(--muted)]/85">{p.blurb}</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {p.tags.map(t => (
-              <span key={t} className="rounded-full border border-white/15 px-2.5 py-1 text-xs text-white/70">{t}</span>
+            {p.tags.map((t, i) => (
+              <Badge className="text-detail" key={`${p.title}-${i}`} text={t} animation="random"/>
             ))}
           </div>
           <div className="mt-4 flex gap-4 text-sm">
-            {p.link && <a href={p.link} className="text-cyan-300 hover:underline">Live</a>}
-            {p.repo && <a href={p.repo} className="text-cyan-300 hover:underline">Repo</a>}
+            {p.link && <a href={p.link} className="text-[var(--accent)] text-detail-2 hover:underline">Live</a>}
+            {p.repo && <a href={p.repo} className="text-[var(--accent)] text-detail-2 hover:underline">Repo</a>}
           </div>
         </article>
       ))}

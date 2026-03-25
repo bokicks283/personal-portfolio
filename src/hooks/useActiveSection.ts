@@ -13,7 +13,7 @@ export function useActiveSection(ids: string[]) {
       if (!el) return;
       const obs = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) setActive(id);
+          if (entry && entry.isIntersecting) setActive(id);
         },
         { rootMargin: "-40% 0px -55% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
       );

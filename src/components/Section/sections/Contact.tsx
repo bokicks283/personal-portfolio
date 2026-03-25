@@ -1,9 +1,12 @@
 export default function Contact() {
   return (
-    <div className="rounded-2xl border border-white/10 p-6">
-      <p className="text-white/80">
+    <div className="surface-card p-6">
+      <p className="text-[var(--fg)]/80 text-detail">
         Prefer email? Reach me at{" "}
-        <a href="mailto:rbocchichio@gmail.com" className="text-cyan-300 hover:underline">
+        <a
+          href="mailto:rbocchichio@gmail.com"
+          className="text-[var(--accent-fg)] hover:underline"
+        >
           rbocchichio@gmail.com
         </a>.
       </p>
@@ -17,13 +20,11 @@ export default function Contact() {
         }}
         className="mt-4 grid gap-3 sm:grid-cols-2"
       >
-        <input name="name" placeholder="Your name" className="rounded-xl bg-white/10 px-4 py-2 outline-none placeholder:text-white/40" required />
-        <input name="email" type="email" placeholder="Your email (optional)" className="rounded-xl bg-white/10 px-4 py-2 outline-none placeholder:text-white/40 sm:col-start-1 sm:col-end-3" />
-        <textarea name="message" placeholder="Message" rows={4} className="rounded-xl bg-white/10 px-4 py-2 outline-none placeholder:text-white/40 sm:col-start-1 sm:col-end-3" required />
+        <input name="name" placeholder="Your name" className="input sm:col-start-1 sm:col-end-3 text-content-2" required />
+        <input name="email" type="email" placeholder="Your email (optional)" className="input sm:col-start-1 sm:col-end-3 text-content-2" />
+        <textarea name="message" placeholder="Message" rows={4} className="textarea sm:col-start-1 sm:col-end-3 text-content-2" required />
         <div className="sm:col-start-1 sm:col-end-3">
-          <button className="rounded-2xl bg-cyan-500/90 px-5 py-2 font-medium text-black hover:bg-cyan-400 transition-colors">
-            Send
-          </button>
+          <button className="btn btn-accent text-detail">Send</button>
         </div>
       </form>
     </div>

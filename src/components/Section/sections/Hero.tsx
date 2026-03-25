@@ -1,55 +1,77 @@
-import TypedText from "../../TypedText";
+import { useEffect, useRef } from "react";
+import TypedText, { type TypedTextHandle } from "../../TypedText";
 
 export default function Hero() {
+  const ref = useRef<TypedTextHandle | null>(null);
+
+  useEffect(() => {
+    const el = document.getElementById("home");
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          // restart the headline when hero is snapped/visible
+          ref.current?.replay("infinite");
+        }
+      },
+      { root: null, rootMargin: "-40% 0px -55% 0px", threshold: [0.25, 0.6] }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className="min-h-[70vh] grid place-items-center text-center">
+    <div className="reveal-item min-h-[70vh] grid place-items-center text-center">
       <div>
         <TypedText
+          ref={ref}
           baseMsPerChar={80}
           baseMsLineDelay={1000}
           startDelayMs={250}
           autoplay={true}
-          // repeat={"infinite"}
-          repeatDelayMs={20000}
+          repeat={"infinite"}
+          repeatDelayMs={10000}
+          onComplete={() => { console.log("Animation Done!") }}
           caretInsetPx={0}
           caretGapPx={1}
           caretBlinkMs={800}
           caretWidthPx={6}
-          fontSizeClass="text-[clamp(2.25rem,8vw,4rem)]"
+          fontSizeClass="text-[clamp(4rem,8vw,6.5rem)]"
           linesClassName="leading-tight"
-          caretColorClass="text-cyan-500/90"
+          caretColorClass="text-[var(--accent)]"
           lines={[
             {
-              segments:[
-                { text: "Ronald Bocchichio", bold: true },
+              segments: [
+                { text: "Ronald Bocchichio", bold: true, colorClass: "text-[var(--fg)] text-hero" },
               ]
             },
             {
-              text: "Software Engineer — Full-stack dev & SDET, builder of robust automation, powerful APIs, and delightful UIs.",
+              segments: [
+                { text: "Software Engineer", bold: true, colorClass: "text-[var(--accent)]" },
+                { text: " — Builder of robust ", colorClass: "text-[var(--fg)]" },
+                { text: "automation", bold: true, colorClass: "text-[var(--accent)]" },
+                { text: ", powerful ", colorClass: "text-[var(--fg)]" },
+                { text: "APIs", bold: true, colorClass: "text-[var(--accent)]" },
+                { text: ", and delightful ", colorClass: "text-[var(--fg)]" },
+                { text: "UIs", bold: true, colorClass: "text-[var(--accent)]" },
+                { text: ".", colorClass: "text-[var(--fg)]" },
+              ],
               caretWidthPx: 2,
               caretInsetPx: 0,
-              lineClassName: "text-white/80 text-lg",
+              lineClassName: "text-[var(--fg)] text-header-3",
               msPerChar: 55,
-              pausesAt:[
+              pausesAt: [
                 { index: 18, delayMs: 1000 },
-                { index: 42, delayMs: 400 },
-                { index: 72, delayMs: 400 },
-                { index: 87, delayMs: 400 },
+                { index: 50, delayMs: 400 },
+                { index: 65, delayMs: 400 },
               ]
             }
           ]}
-
         />
-        {/* <p className="mt-4 text-white/80 text-lg">
-          Software Engineer — Full‑stack dev & SDET, builder of robust automation and delightful UIs.
-        </p> */}
         <div className="mt-8 flex items-center justify-center gap-3">
-          <a href="#projects" className="rounded-2xl px-5 py-2 bg-cyan-500/90 hover:bg-cyan-400 text-black font-medium transition-colors">
-            View Projects
-          </a>
-          <a href="#contact" className="rounded-2xl px-5 py-2 border border-white/30 hover:border-white/60 text-white/90 transition-colors">
-            Contact
-          </a>
+          <a href="#projects" className="btn btn-accent text-detail">View Projects</a>
+          <a href="#contact" className="btn btn-outline text-detail">Contact</a>
+
         </div>
       </div>
     </div>

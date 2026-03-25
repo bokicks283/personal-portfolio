@@ -1,7 +1,7 @@
 import {
   useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef
 } from "react";
-import { TypedLine, type TypedLineVM, type CharCell } from "./TypedLine.tsx";
+import { TypedLine, type TypedLineVM, type CharCell } from "./TypedLine";
 
 /** Styling for a piece of text inside a line */
 export type TextSegment = {
@@ -30,6 +30,7 @@ export type TypedLineItem = {
   pausesAt?: Array<{ index: number; delayMs: number }>;
   /** Optional per-line wrapper classes for padding/border/etc */
   lineClassName?: string;   // e.g. "px-2 py-1 rounded-md border border-neutral-700"
+  baseLineGapPx?: number;
 };
 
 export type TypedTextProps = {
@@ -48,6 +49,8 @@ export type TypedTextProps = {
   caretInsetPx?: number;      // e.g. 2 (px)
   caretColorHex?: string;     // caret color (hex or CSS color)
   caretColorClass?: string;   // or Tailwind class (static)
+
+  baseLineGapPx?: number;
 
   /** Looping / control */
   autoplay?: boolean;           // default: true
@@ -154,15 +157,17 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
         lineClassName: line.lineClassName ?? linesClassName ?? "",
       };
       const lineStartMs = offset;
-      const lineEndMs = when.length ? when[when.length - 1] + offset : offset;
+      const lastWhen = when?.[when.length - 1] ?? 0;
+      const lineEndMs = (when?.length ?? 0) ? lastWhen + offset : offset;
       offset = lineEndMs + (baseMsLineDelay ?? 0) + (line.lineDelayMs ?? 0); // next line offset includes requested gap
       return { vm, lineStartMs, lineEndMs };
     });
     return result;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lines, baseMsPerChar, startDelayMs]);
 
   const totalDuration = useMemo(
-    () => (plan.length ? plan[plan.length - 1].lineEndMs : 0),
+    () => plan[plan.length - 1]?.lineEndMs ?? 0,
     [plan]
   );
 
@@ -206,7 +211,7 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
     runStart.current = performance.now();
     tick();
   }
-
+  
   function tick() {
     if (!running.current) return;
     const now = performance.now();
@@ -218,8 +223,12 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
       plan.forEach(({ vm }, i) => {
         // count how many timestamps <= elapsed
         let k = 0;
-        const when = vm.when;
-        while (k < when.length && when[k] <= elapsed) k++;
+        const when = vm.when ?? [];
+        while (k < when.length) {
+          const ts = when[k];
+          if (ts === undefined || ts > elapsed) break;
+          k++;
+        }
         if (k !== next[i]) next[i] = k;
       });
       return next;
@@ -256,17 +265,16 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
   }
 
   return (
-    <div className={`grid place-items-center ${fontClass} ${fontSizeClass}`} aria-live={ariaLive}>
+    <div 
+      className={`grid ${fontClass} ${fontSizeClass}`}
+      aria-live={ariaLive}
+    >
       {plan.map(({ vm }, i) => (
         <TypedLine
           key={i}
           vm={vm}
-          count={counts[i]}
-          nextLineStarted={i < plan.length - 1 ? counts[i + 1] > 0 : false}
-          caretWidthPx={caretWidthPx}
-          caretBlinkMs={caretBlinkMs}
-          caretInsetPx={caretInsetPx}
-          caretGapPx={caretGapPx}
+          count={counts[i] || 0}
+          nextLineStarted={i < plan.length - 1 ? (counts[i + 1] ?? 0) > 0 : false}
         />
       ))}
     </div>
