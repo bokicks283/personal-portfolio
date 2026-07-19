@@ -1,6 +1,6 @@
-import { useEffect, useState, type JSX } from "react";
+import { useEffect, useMemo, useState, type JSX } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
-import { loadFull } from "tsparticles";
+import { loadSlim } from "@tsparticles/slim";
 import type { IOptions, RecursivePartial } from "@tsparticles/engine";
 import { getCssVarColor } from "@/shared/lib";
 
@@ -19,6 +19,14 @@ function ParticleBackground({ className, zIndex = 10, children}: ParticleBackgro
     accent: "#ffffff",
     bg: "#000000",
   });
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const deviceProfile = useMemo(() => {
+    if (typeof window === "undefined") return "balanced" as const;
+    const nav = navigator as Navigator & { deviceMemory?: number };
+    const cores = nav.hardwareConcurrency ?? 4;
+    const memory = nav.deviceMemory ?? 4;
+    return cores >= 8 && memory >= 8 ? "high" as const : "balanced" as const;
+  }, []);
 
   // Keep particles colors synced to theme vars
   useEffect(() => {
@@ -37,60 +45,81 @@ function ParticleBackground({ className, zIndex = 10, children}: ParticleBackgro
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     return () => observer.disconnect();
   }, []);
-  const particlesOptions: RecursivePartial<IOptions> = {
-    background: {
-      position: "10% 50%",
-      color: colors.bg
-    },
-    particles: {
-      color: {
-        value: colors.fg
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduceMotion(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  const particlesOptions: RecursivePartial<IOptions> = useMemo(() => {
+    const particleCount = reduceMotion ? 48 : deviceProfile === "high" ? 140 : 100;
+    const minSpeed = reduceMotion ? 0.2 : deviceProfile === "high" ? 1.2 : 0.9;
+    const maxSpeed = reduceMotion ? 0.8 : deviceProfile === "high" ? 4.2 : 3.2;
+    const linkDistance = deviceProfile === "high" ? 190 : 165;
+
+    return {
+      fpsLimit: 60,
+      pauseOnBlur: true,
+      detectRetina: true,
+      background: {
+        position: "10% 50%",
+        color: colors.bg
       },
-      links: {
-        color: colors.accent,
-        distance: 200,
-        enable: true,
-        opacity: 0.5,
-        width: 1
-      },
-      collisions: {
-        enable: false
-      },
-      move: {
-        direction: "left",
-        enable: true,
-        random: true,
-        speed: {
-          min: 1,
-          max: 6
+      particles: {
+        color: {
+          value: colors.fg
         },
-        straight: false
-      },
-      number: {
-        density: {
-          enable: true
+        links: {
+          color: colors.accent,
+          distance: linkDistance,
+          enable: !reduceMotion,
+          opacity: 0.45,
+          width: 1
         },
-        value: 100
-      },
-      opacity: {
-        value: 0.5
-      },
-      shape: {
-        type: "circle"
-      },
-      size: {
-        value: {
-          min: 1,
-          max: 6
+        collisions: {
+          enable: false
+        },
+        move: {
+          direction: "left",
+          enable: true,
+          random: true,
+          speed: {
+            min: minSpeed,
+            max: maxSpeed
+          },
+          straight: false
+        },
+        number: {
+          density: {
+            enable: true
+          },
+          value: particleCount
+        },
+        opacity: {
+          value: reduceMotion ? 0.3 : 0.48
+        },
+        shape: {
+          type: "circle"
+        },
+        size: {
+          value: {
+            min: 1,
+            max: reduceMotion ? 2 : deviceProfile === "high" ? 5 : 4
+          }
         }
-      }
-    },
-    fullScreen: true
-  }
+      },
+      fullScreen: true
+    };
+  }, [colors.accent, colors.bg, colors.fg, deviceProfile, reduceMotion]);
+
   useEffect(() => {
     if (init) return;
     initParticlesEngine(async (engine) => {
-      await loadFull(engine);
+      await loadSlim(engine);
     }).then(() => setInit(true));
   }, [init]);
 

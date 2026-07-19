@@ -6,13 +6,14 @@ Application entrypoint that mounts React into #root and imports global styles.
 ## File Snapshot
 - Kind: React component module (TypeScript + JSX)
 - Architecture layer: App entrypoint
-- Approximate length: 11 lines
+- Approximate length: 19 lines
 
 ## Imports Explained
 - `import { StrictMode } from "react";`
 - `import ReactDOM from "react-dom/client";`
 - `import App from "@/app/App";`
 - `import "@/app/styles.css";`
+- `import { initPerformanceTracking, reportCustomMetric } from "@/shared/lib";`
 
 ## Public API (Exports)
 - None.

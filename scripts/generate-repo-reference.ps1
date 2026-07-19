@@ -5,7 +5,11 @@ param(
 
 $repoRootPath = (Resolve-Path -LiteralPath $RepoRoot).Path
 $outRoot = Join-Path $repoRootPath $OutDir
-New-Item -ItemType Directory -Force -Path $outRoot | Out-Null
+if (Test-Path -LiteralPath $outRoot) {
+  Get-ChildItem -LiteralPath $outRoot -Force | Remove-Item -Recurse -Force
+} else {
+  New-Item -ItemType Directory -Force -Path $outRoot | Out-Null
+}
 
 function Normalize-RelPath {
   param([string]$AbsolutePath)

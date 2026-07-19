@@ -6,7 +6,7 @@ Portfolio feature module: page sections, navigation, and feature-specific compos
 ## File Snapshot
 - Kind: React component module (TypeScript + JSX)
 - Architecture layer: Feature layer (domain/page-specific UI and behavior)
-- Approximate length: 80 lines
+- Approximate length: 79 lines
 
 ## Imports Explained
 - `import { useEffect, useRef } from "react";`

@@ -1,21 +1,22 @@
-# docs/README.md
+# scripts/report-dist-size.mjs
 
 ## Purpose
-Project documentation file intended for developers/maintainers.
+Project file supporting app runtime, tooling, or documentation.
 
 ## File Snapshot
-- Kind: Markdown documentation
-- Architecture layer: Documentation layer
-- Approximate length: 22 lines
+- Kind: Repository file
+- Architecture layer: Automation/tooling scripts
+- Approximate length: 38 lines
 
 ## Imports Explained
-- None.
+- `import { readdirSync, statSync, writeFileSync } from "node:fs";`
+- `import { join, resolve } from "node:path";`
 
 ## Public API (Exports)
 - None.
 
 ## Syntax Walkthrough (Beginner Friendly)
-- No notable language-specific syntax patterns detected beyond standard file content.
+- Uses ES module import syntax (import ... from ...) to declare dependencies.
 
 ## Design Patterns In This File
 - No special architectural pattern detected; this file is mainly declarative/supporting content.
@@ -24,7 +25,8 @@ Project documentation file intended for developers/maintainers.
 - Low-risk file. Main concern is keeping imports/exports and naming consistent with the project structure.
 
 ## Learning Links (Official Docs)
-- [Markdown guide](https://www.markdownguide.org/basic-syntax/)
+- [React docs home](https://react.dev/)
+- [TypeScript docs home](https://www.typescriptlang.org/docs/)
 
 ## Practical Editing Checklist
 - Keep imports aligned with the app -> features -> shared boundary rule.

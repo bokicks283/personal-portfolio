@@ -6,7 +6,7 @@ Portfolio feature module: page sections, navigation, and feature-specific compos
 ## File Snapshot
 - Kind: React component module (TypeScript + JSX)
 - Architecture layer: Feature layer (domain/page-specific UI and behavior)
-- Approximate length: 53 lines
+- Approximate length: 59 lines
 
 ## Imports Explained
 - `import ThemeProvider, { ScrollSnapProvider } from "@/app/providers";`

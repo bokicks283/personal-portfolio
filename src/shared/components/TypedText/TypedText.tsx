@@ -115,6 +115,18 @@ function buildCharPlan(line: TypedLineItem, baseMsPerChar: number) {
   return { chars, when };
 }
 
+function upperBound(sortedValues: number[], target: number) {
+  let low = 0;
+  let high = sortedValues.length;
+  while (low < high) {
+    const mid = (low + high) >> 1;
+    const value = sortedValues[mid];
+    if (value != null && value <= target) low = mid + 1;
+    else high = mid;
+  }
+  return low;
+}
+
 const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText(
   {
     lines,
@@ -220,18 +232,16 @@ const TypedText = forwardRef<TypedTextHandle, TypedTextProps>(function TypedText
     // compute visible counts from elapsed time (no per-char timers)
     setCounts(prev => {
       const next = prev.slice();
+      let changed = false;
       plan.forEach(({ vm }, i) => {
-        // count how many timestamps <= elapsed
-        let k = 0;
         const when = vm.when ?? [];
-        while (k < when.length) {
-          const ts = when[k];
-          if (ts === undefined || ts > elapsed) break;
-          k++;
+        const k = upperBound(when, elapsed);
+        if (k !== next[i]) {
+          next[i] = k;
+          changed = true;
         }
-        if (k !== next[i]) next[i] = k;
       });
-      return next;
+      return changed ? next : prev;
     });
 
     // done?

@@ -31,7 +31,6 @@ export default function Hero() {
           autoplay={true}
           repeat={"infinite"}
           repeatDelayMs={10000}
-          onComplete={() => { console.log("Animation Done!") }}
           caretInsetPx={0}
           caretGapPx={1}
           caretBlinkMs={800}

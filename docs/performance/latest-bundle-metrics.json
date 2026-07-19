@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-03-25T21:07:01.845Z",
+  "totalBytes": 2614496,
+  "totalKB": 2553.22,
+  "assets": [
+    {
+      "name": "RBLogoInverted-DhBg6o7P.svg",
+      "bytes": 1095581,
+      "kb": 1069.9
+    },
+    {
+      "name": "RBLogo-BfSGsGVA.svg",
+      "bytes": 1095235,
+      "kb": 1069.57
+    },
+    {
+      "name": "index-CV7q87DA.js",
+      "bytes": 379608,
+      "kb": 370.71
+    },
+    {
+      "name": "index-DrGYDYRX.css",
+      "bytes": 44072,
+      "kb": 43.04
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-# docs/README.md
+# docs/performance/performance-pass-2026-03-25-visual-priority.md
 
 ## Purpose
 Project documentation file intended for developers/maintainers.
@@ -6,7 +6,7 @@ Project documentation file intended for developers/maintainers.
 ## File Snapshot
 - Kind: Markdown documentation
 - Architecture layer: Documentation layer
-- Approximate length: 22 lines
+- Approximate length: 71 lines
 
 ## Imports Explained
 - None.

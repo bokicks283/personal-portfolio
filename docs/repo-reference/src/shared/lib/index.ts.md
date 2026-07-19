@@ -6,7 +6,7 @@ Utility module with framework-agnostic or low-level logic shared by hooks/compon
 ## File Snapshot
 - Kind: Barrel export module
 - Architecture layer: Shared layer (reusable components, hooks, libraries)
-- Approximate length: 4 lines
+- Approximate length: 5 lines
 
 ## Imports Explained
 - None.
@@ -14,6 +14,7 @@ Utility module with framework-agnostic or low-level logic shared by hooks/compon
 ## Public API (Exports)
 - `export * from "./getCssVarColor";`
 - `export * from "./overlayScrollbar";`
+- `export * from "./performanceMetrics";`
 - `export * from "./scrollDir";`
 
 ## Syntax Walkthrough (Beginner Friendly)

@@ -5,7 +5,7 @@ Each source file has a companion Markdown file here.
 
 ## Scope
 - Excludes: .git, node_modules, dist, and this generated folder itself.
-- Coverage count: 68 files.
+- Coverage count: 74 files.
 
 ## How To Regenerate
 Run:
@@ -21,6 +21,10 @@ pwsh ./scripts/generate-repo-reference.ps1
 - [docs/architecture/project-organization.md](./docs/architecture/project-organization.md.md)
 - [docs/architecture/providers-pattern.md](./docs/architecture/providers-pattern.md.md)
 - [docs/architecture/README.md](./docs/architecture/README.md.md)
+- [docs/performance/latest-bundle-metrics.json](./docs/performance/latest-bundle-metrics.json.md)
+- [docs/performance/performance-pass-2026-03-25-visual-priority.md](./docs/performance/performance-pass-2026-03-25-visual-priority.md.md)
+- [docs/performance/performance-pass-2026-03-25.md](./docs/performance/performance-pass-2026-03-25.md.md)
+- [docs/performance/README.md](./docs/performance/README.md.md)
 - [docs/professional-profile-intake.md](./docs/professional-profile-intake.md.md)
 - [docs/README.md](./docs/README.md.md)
 - [docs/tooling/stack-alignment-2026-03.md](./docs/tooling/stack-alignment-2026-03.md.md)
@@ -32,6 +36,7 @@ pwsh ./scripts/generate-repo-reference.ps1
 - [public/vite.svg](./public/vite.svg.md)
 - [README.md](./README.md.md)
 - [scripts/generate-repo-reference.ps1](./scripts/generate-repo-reference.ps1.md)
+- [scripts/report-dist-size.mjs](./scripts/report-dist-size.mjs.md)
 - [src/app/App.tsx](./src/app/App.tsx.md)
 - [src/app/providers/index.ts](./src/app/providers/index.ts.md)
 - [src/app/providers/ScrollSnapProvider/ScrollSnapHelper.ts](./src/app/providers/ScrollSnapProvider/ScrollSnapHelper.ts.md)
@@ -79,6 +84,7 @@ pwsh ./scripts/generate-repo-reference.ps1
 - [src/shared/lib/getCssVarColor.ts](./src/shared/lib/getCssVarColor.ts.md)
 - [src/shared/lib/index.ts](./src/shared/lib/index.ts.md)
 - [src/shared/lib/overlayScrollbar.ts](./src/shared/lib/overlayScrollbar.ts.md)
+- [src/shared/lib/performanceMetrics.ts](./src/shared/lib/performanceMetrics.ts.md)
 - [src/shared/lib/scrollDir.ts](./src/shared/lib/scrollDir.ts.md)
 - [tsconfig.json](./tsconfig.json.md)
 - [tsconfig.node.json](./tsconfig.node.json.md)

@@ -6,7 +6,7 @@ Project documentation file intended for developers/maintainers.
 ## File Snapshot
 - Kind: Markdown documentation
 - Architecture layer: Tooling/configuration
-- Approximate length: 72 lines
+- Approximate length: 74 lines
 
 ## Imports Explained
 - None.

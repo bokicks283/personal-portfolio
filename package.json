@@ -9,8 +9,10 @@
   "scripts": {
     "dev": "vite",
     "dev:host": "vite --host",
+    "docs:sync": "pwsh ./scripts/generate-repo-reference.ps1",
     "typecheck": "tsc -b",
     "build": "npm run typecheck && vite build",
+    "perf:bundle": "npm run build && node ./scripts/report-dist-size.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -18,10 +20,12 @@
     "@tailwindcss/vite": "^4.2.2",
     "@tsparticles/engine": "^3.9.1",
     "@tsparticles/react": "^3.0.0",
+    "@tsparticles/slim": "^3.9.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.13.2",
-    "tsparticles": "^3.9.1"
+    "tsparticles": "^3.9.1",
+    "web-vitals": "^5.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

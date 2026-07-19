@@ -6,10 +6,11 @@ Reusable custom hook encapsulating browser or UI behavior behind a stable API.
 ## File Snapshot
 - Kind: TypeScript module
 - Architecture layer: Shared layer (reusable components, hooks, libraries)
-- Approximate length: 96 lines
+- Approximate length: 159 lines
 
 ## Imports Explained
 - `import { useCallback, useEffect, useRef, useState } from "react";`
+- `import { reportCustomMetric } from "@/shared/lib";`
 
 ## Public API (Exports)
 - `export function useScrollSnap(sectionSelector = '[data-snap-section="true"]') {`
@@ -18,6 +19,7 @@ Reusable custom hook encapsulating browser or UI behavior behind a stable API.
 - Uses ES module import syntax (import ... from ...) to declare dependencies.
 - Uses ES module export syntax to expose a public API from this file.
 - Uses union types (A | B) to constrain values to safe, explicit options.
+- Uses nullish coalescing (a ?? b) for fallback defaults only when values are nullish.
 - Contains TypeScript type assertions (as ...) to narrow values when runtime checks are implicit.
 
 ## Design Patterns In This File

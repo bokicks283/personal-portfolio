@@ -1,12 +1,12 @@
-# docs/README.md
+# docs/performance/latest-bundle-metrics.json
 
 ## Purpose
-Project documentation file intended for developers/maintainers.
+Project file supporting app runtime, tooling, or documentation.
 
 ## File Snapshot
-- Kind: Markdown documentation
+- Kind: Repository file
 - Architecture layer: Documentation layer
-- Approximate length: 22 lines
+- Approximate length: 27 lines
 
 ## Imports Explained
 - None.
@@ -24,7 +24,7 @@ Project documentation file intended for developers/maintainers.
 - Low-risk file. Main concern is keeping imports/exports and naming consistent with the project structure.
 
 ## Learning Links (Official Docs)
-- [Markdown guide](https://www.markdownguide.org/basic-syntax/)
+- None.
 
 ## Practical Editing Checklist
 - Keep imports aligned with the app -> features -> shared boundary rule.

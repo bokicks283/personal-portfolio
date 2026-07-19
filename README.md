@@ -60,6 +60,7 @@ npm run dev:host
 npm run typecheck
 npm run lint
 npm run build
+npm run perf:bundle
 npm run preview
 ```
 
@@ -68,4 +69,5 @@ npm run preview
 - [Docs index](./docs/README.md)
 - [Architecture docs](./docs/architecture/README.md)
 - [Tooling alignment report](./docs/tooling/stack-alignment-2026-03.md)
+- [Performance docs](./docs/performance/README.md)
 - [Generated file-by-file reference](./docs/repo-reference/README.md)
